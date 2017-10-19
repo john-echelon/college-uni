@@ -8,6 +8,11 @@ using Microsoft.Extensions.Logging;
 using SchoolUni.Database.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
 using CollegeUni.Models;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.Extensions.Configuration;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -19,16 +24,69 @@ namespace CollegeUni.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger _logger;
+        private readonly IConfiguration _configuration;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger,
+            IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _configuration = configuration;
         }
+
+        [HttpPost("token")]
+        public async Task<IActionResult> Token([FromBody] LoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var user = await _userManager.FindByNameAsync(model.Email);
+
+            var result = await _signInManager.CheckPasswordSignInAsync(user,
+            model.Password, lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                var token = await GetJwtSecurityToken(user);
+
+                return Ok(new
+                {
+                    token = new JwtSecurityTokenHandler().WriteToken(token),
+                    expiration = token.ValidTo
+                });
+            }
+            return BadRequest();
+
+        }
+        private async Task<JwtSecurityToken> GetJwtSecurityToken(ApplicationUser user)
+        {
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            string domain = $"https://{_configuration["Auth0:Domain"]}/";
+            string apiIdentifier = _configuration["Auth0:ApiIdentifier"];
+
+            return new JwtSecurityToken(
+                issuer: domain,
+                audience: domain,
+                claims: GetTokenClaims(user).Union(userClaims),
+                expires: DateTime.UtcNow.AddMinutes(10),
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(apiIdentifier)), SecurityAlgorithms.HmacSha256)
+            );
+        }
+        private static IEnumerable<Claim> GetTokenClaims(ApplicationUser user)
+        {
+            return new List<Claim>
+                {
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Sub, user.UserName)
+                };
+        }
+ 
         // POST: /Account/Register
         [HttpPost]
         [AllowAnonymous]
@@ -76,8 +134,10 @@ namespace CollegeUni.Controllers
             if (result.Succeeded)
             {
                 _logger.LogInformation(1, "User logged in.");
+                return Ok();
+
             }
-            return Ok(result);
+            return BadRequest();
             //if (result.RequiresTwoFactor)
             //{
             //    return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });

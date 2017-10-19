@@ -14,7 +14,6 @@ namespace CollegeUni.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            throw new Exception("My Exception");
             return new string[] { "value1", "value2" };
         }
         [Authorize]
