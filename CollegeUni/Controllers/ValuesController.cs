@@ -3,19 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CollegeUni.Controllers
 {
-    [Route("api/[controller]")]
+    [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
     public class ValuesController : Controller
     {
         // GET api/values
         [HttpGet]
         public IEnumerable<string> Get()
         {
+            throw new Exception("My Exception");
             return new string[] { "value1", "value2" };
         }
-
+        [Authorize]
         // GET api/values/5
         [HttpGet("{id}")]
         public string Get(int id)
