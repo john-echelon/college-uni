@@ -127,6 +127,11 @@ namespace CollegeUni
 
             #region Add application services
             services.AddTransient<ITokenService, TokenService>();
+            services.AddTransient<ICourseService, CourseService>();
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddTransient<IGenericRepo<Course>, GenericRepo<Course>>();
+            services.AddTransient<IGenericRepo<Student>, GenericRepo<Student>>();
+            services.AddTransient<IGenericRepo<Enrollment>, GenericRepo<Enrollment>>();
             #endregion
         }
 
