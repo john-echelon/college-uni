@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using CollegeUni.Services;
 
 namespace CollegeUni
 {
@@ -32,6 +33,7 @@ namespace CollegeUni
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            #region Add Framework Services
             // CORS section
             services.AddCors();
 
@@ -113,7 +115,6 @@ namespace CollegeUni
                         }
                     };
             });
-            services.AddMvc();
 
             // Register the Swagger generator, defining one or more Swagger documents
             services.AddSwaggerGen(c =>
@@ -121,6 +122,12 @@ namespace CollegeUni
                 c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
             });
 
+            services.AddMvc();
+            #endregion
+
+            #region Add application services
+            services.AddTransient<ITokenService, TokenService>();
+            #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
