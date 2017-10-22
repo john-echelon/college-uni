@@ -19,10 +19,11 @@ namespace CollegeUni.Services
         public async Task<BrowseResponse<Course>> GetCourses(StudentBrowseRequest request)
         {
             IQueryable<Course> query;
+            var studentID = request.StudentID.GetValueOrDefault();
             if (request.StudentID.HasValue)
             {
                 query = _unitOfWork.EnrollmentRepository.
-                    Get(e => e.StudentID == request.StudentID.Value, includeProperties: "Course").
+                    Get(e => e.StudentID == request.StudentID.Value).
                     Select(e => e.Course);
             }
             else
@@ -38,6 +39,20 @@ namespace CollegeUni.Services
         public async Task<Course> GetCourse(int courseID)
         {
             return await _unitOfWork.CourseRepository.GetByIDAsync(courseID);
+        }
+
+        public void SaveCourse(Course course, bool isInsert = false)
+        {
+            if(isInsert)
+                _unitOfWork.CourseRepository.Insert(course);
+            else _unitOfWork.CourseRepository.Update(course);
+            _unitOfWork.SaveAsync();
+        }
+
+        public void RemoveCourse(int courseID)
+        {
+            _unitOfWork.CourseRepository.Delete(courseID);
+            _unitOfWork.Save();
         }
     }
 }

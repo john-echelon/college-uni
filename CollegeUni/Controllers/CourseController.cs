@@ -12,7 +12,7 @@ using SchoolUni.Database.Models.Entities;
 
 namespace CollegeUni.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     public class CourseController : CollegeUniBaseController
     {
@@ -48,20 +48,23 @@ namespace CollegeUni.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]string value)
+        public void Post([FromBody]Course value)
         {
+            _courseService.SaveCourse(value, isInsert:true);
         }
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public void Put(int id, [FromBody]Course value)
         {
+            _courseService.SaveCourse(value);
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+            _courseService.RemoveCourse(id);
         }
     }
 }
