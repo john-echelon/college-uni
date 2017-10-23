@@ -12,7 +12,7 @@ using SchoolUni.Database.Models.Entities;
 
 namespace CollegeUni.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     public class CourseController : CollegeUniBaseController
     {
