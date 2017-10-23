@@ -41,12 +41,20 @@ namespace CollegeUni.Services
             return await _unitOfWork.CourseRepository.GetByIDAsync(courseID);
         }
 
-        public void SaveCourse(Course course, bool isInsert = false)
+        public async Task<Course> SaveCourse(Course course, bool isInsert = false)
         {
             if(isInsert)
-                _unitOfWork.CourseRepository.Insert(course);
+                _unitOfWork.CourseRepository.InsertAsync(course);
             else _unitOfWork.CourseRepository.Update(course);
-            _unitOfWork.SaveAsync();
+            int result = await _unitOfWork.SaveAsync();
+            if(result >0)
+            {
+                return await _unitOfWork.CourseRepository.GetByIDAsync(course.CourseID);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public void RemoveCourse(int courseID)

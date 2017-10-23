@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SchoolUni.Database.Data
 {
@@ -52,9 +53,9 @@ namespace SchoolUni.Database.Data
             _context.SaveChanges();
         }
 
-        public void SaveAsync()
+        public Task<int> SaveAsync()
         {
-            _context.SaveChangesAsync();
+            return _context.SaveChangesAsync();
         }
         private bool disposed = false;
 

@@ -1,4 +1,5 @@
 ﻿using SchoolUni.Database.Models.Entities;
+using System.Threading.Tasks;
 
 namespace SchoolUni.Database.Data
 {
@@ -10,6 +11,6 @@ namespace SchoolUni.Database.Data
 
         void Dispose();
         void Save();
-        void SaveAsync();
+        Task<int> SaveAsync();
     }
 }

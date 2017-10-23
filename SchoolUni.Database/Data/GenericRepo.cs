@@ -61,6 +61,10 @@ namespace SchoolUni.Database.Data
             dbSet.Add(entity);
         }
 
+        public virtual void InsertAsync(TEntity entity)
+        {
+            dbSet.AddAsync(entity);
+        }
         public virtual void Delete(object id)
         {
             TEntity entityToDelete = dbSet.Find(id);

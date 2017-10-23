@@ -23,6 +23,13 @@ namespace CollegeUni.Controllers
             _courseService = courseService;
         }
         // GET: api/values
+        /// <summary>
+        /// Returns courses.
+        /// </summary>
+        /// <param name="offset">The offset determines the number of courses to skip. Set to 0 to skip none.</param>
+        /// <param name="limit">Limits the number of course items retrieved.</param>
+        /// <param name="studentID">An optional filter criteria to filter courses by student id.</param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> Get(int offset, int limit, int? studentID =  null)
         {
@@ -39,6 +46,11 @@ namespace CollegeUni.Controllers
         }
 
         // GET api/values/5
+        /// <summary>
+        /// Returns a course by the course id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync(int id)
         {
@@ -47,20 +59,35 @@ namespace CollegeUni.Controllers
         }
 
         // POST api/values
+        /// <summary>
+        /// Creates a new course.
+        /// </summary>
+        /// <param name="value"></param>
         [HttpPost]
-        public void Post([FromBody]Course value)
+        public async Task<IActionResult> Post([FromBody]Course value)
         {
-            _courseService.SaveCourse(value, isInsert:true);
+            var result = await _courseService.SaveCourse(value, isInsert:true);
+            return Ok(result);
         }
 
         // PUT api/values/5
+        /// <summary>
+        /// Updates a course.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="value"></param>
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]Course value)
+        public async Task<IActionResult> Put(int id, [FromBody]Course value)
         {
-            _courseService.SaveCourse(value);
+            var result = await _courseService.SaveCourse(value, isInsert:false);
+            return Ok(result);
         }
 
         // DELETE api/values/5
+        /// <summary>
+        /// Removes a course.
+        /// </summary>
+        /// <param name="id"></param>
         [HttpDelete("{id}")]
         public void Delete(int id)
         {

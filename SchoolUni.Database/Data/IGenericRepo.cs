@@ -15,6 +15,7 @@ namespace SchoolUni.Database.Data
         Task<TEntity> GetByIDAsync(object id);
 
         void Insert(TEntity entity);
+        void InsertAsync(TEntity entity);
         void Update(TEntity entityToUpdate);
     }
 }

@@ -18,6 +18,10 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using CollegeUni.Services;
+using Microsoft.Extensions.PlatformAbstractions;
+using System.IO;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace CollegeUni
 {
@@ -119,8 +123,23 @@ namespace CollegeUni
             // Register the Swagger generator, defining one or more Swagger documents
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
+                c.SwaggerDoc("v1", new Info
+                {
+                    Version = "v1",
+                    Title = "College Uni API",
+                    Description = "A simple API for school course administration."
+                });
+                //c.AddSecurityDefinition("Bearer", new ApiKeyScheme() { In = "header", Description = "Please insert JWT with Bearer into field", Name = "Authorization", Type = "apiKey" });`
+                var basePath = PlatformServices.Default.Application.ApplicationBasePath;
+                var xmlPath = Path.Combine(basePath, "CollegeUni.xml");
+                c.IncludeXmlComments(xmlPath);
             });
+
+            //services.ConfigureSwaggerGen(options =>
+            //{
+            //    options.SwaggerDoc
+            //    options.OperationFilter<AuthHeaderParamOperationsFilter>(new AuthHeaderParamOperationsFilter());
+            //});
 
             services.AddMvc();
             #endregion
@@ -146,7 +165,6 @@ namespace CollegeUni
 
             // Shows UseCors with CorsPolicyBuilder.
             app.UseCors(builder =>
-                //builder.WithOrigins("http://docs.napa.com")
                 builder.AllowAnyOrigin()
                     .AllowAnyHeader()
                 );
@@ -161,7 +179,31 @@ namespace CollegeUni
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
+            
             app.UseMvc();
+        }
+    }
+
+    public class AuthHeaderParamOperationsFilter : IOperationFilter
+    {
+        public void Apply(Operation operation, OperationFilterContext context)
+        {
+            var filterPipeline = context.ApiDescription.ActionDescriptor.FilterDescriptors;
+            var isAuthorized = filterPipeline.Select(filterInfo => filterInfo.Filter).Any(filter => filter is AuthorizeFilter);
+            var allowAnonymous = filterPipeline.Select(filterInfo => filterInfo.Filter).Any(filter => filter is IAllowAnonymousFilter);
+            if (isAuthorized && !allowAnonymous)
+            {
+                if (operation.Parameters == null)
+                    operation.Parameters = new List<IParameter>();
+                operation.Parameters.Add(new NonBodyParameter
+                {
+                    Name = "Authorization",
+                    In = "header",
+                    Description = "access token",
+                    Required = true,
+                    Type = "string"
+                });
+            }
         }
     }
 }
