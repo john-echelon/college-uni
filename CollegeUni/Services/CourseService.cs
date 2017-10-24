@@ -1,9 +1,12 @@
 ﻿using CollegeUni.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SchoolUni.Database.Data;
 using SchoolUni.Database.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CollegeUni.Services
@@ -41,20 +44,37 @@ namespace CollegeUni.Services
             return await _unitOfWork.CourseRepository.GetByIDAsync(courseID);
         }
 
-        public async Task<Course> SaveCourse(Course course, bool isInsert = false)
+        public async Task<CourseViewModel> SaveCourse(Course course, bool isInsert = false)
         {
+            var modelState = new ModelStateDictionary();
+
             if(isInsert)
-                _unitOfWork.CourseRepository.InsertAsync(course);
+                _unitOfWork.CourseRepository.Insert(course);
             else _unitOfWork.CourseRepository.Update(course);
-            int result = await _unitOfWork.SaveAsync();
-            if(result >0)
+            var resolveConflicts = ConcurrencyHelper.ResolveConflicts(course, modelState);
+            int result = _unitOfWork.Save(resolveConflicts, userResolveConflict: true);
+            // Demonstrate ClientWins
+            // int result = _unitOfWork.SaveSingleEntry(RefreshConflict.ClientWins);
+            if (result >0)
             {
-                return await _unitOfWork.CourseRepository.GetByIDAsync(course.CourseID);
+                return await Task.FromResult(ToCourseViewModel(await _unitOfWork.CourseRepository.GetByIDAsync(course.CourseID)));
             }
             else
             {
-                return null;
+                var response = ToCourseViewModel(course);
+                response.ModelState = modelState;
+                return await Task.FromResult(response);
             }
+        }
+
+        CourseViewModel ToCourseViewModel(Course course) {
+            return new CourseViewModel
+            {
+                CourseID = course.CourseID,
+                Credits = course.Credits,
+                Title = course.Title,
+                RowVersion = course.RowVersion,
+            };
         }
 
         public void RemoveCourse(int courseID)

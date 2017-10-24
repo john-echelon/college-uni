@@ -80,7 +80,9 @@ namespace CollegeUni.Controllers
         public async Task<IActionResult> Put(int id, [FromBody]Course value)
         {
             var result = await _courseService.SaveCourse(value, isInsert:false);
-            return Ok(result);
+            if (result.ModelState.IsValid)
+                return Ok(result);
+            else return BadRequest(result.ModelState);
         }
 
         // DELETE api/values/5
