@@ -12,17 +12,15 @@ namespace SchoolUni.Database.Data
 {
     public enum RefreshConflict
     {
-        StoreWins,
+        StoreWins = 0,
 
-        ClientWins,
+        ClientWins = 1,
 
-        MergeClientAndStore
+        MergeClientAndStore =2,
     }
 
     public static partial class DbContextExtensions
     {
-        public const string TimestampPropertyName = "RowVersion";
-
         public static int SaveChanges(
          this DbContext context, Action<IEnumerable<EntityEntry>> resolveConflicts, int retryCount = 3, bool userResolveConflict = false)
         {

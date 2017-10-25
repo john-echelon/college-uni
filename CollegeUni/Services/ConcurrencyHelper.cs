@@ -15,7 +15,6 @@ namespace CollegeUni.Services
             Action<IEnumerable<EntityEntry>> resolveConflicts = (entries) =>
             {
                 var exceptionEntry = entries.Single();
-                //var clientValues = (Course)exceptionEntry.Entity;
                 var clientValues = exceptionEntry.CurrentValues;
                 var databaseEntry = exceptionEntry.GetDatabaseValues();
                 if (databaseEntry == null)

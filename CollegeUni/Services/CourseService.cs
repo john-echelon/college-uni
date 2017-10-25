@@ -1,6 +1,6 @@
 ﻿using CollegeUni.Models;
+using CollegeUni.Utilities;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SchoolUni.Database.Data;
 using SchoolUni.Database.Models.Entities;
 using System;
@@ -44,24 +44,37 @@ namespace CollegeUni.Services
             return await _unitOfWork.CourseRepository.GetByIDAsync(courseID);
         }
 
-        public async Task<CourseViewModel> SaveCourse(Course course, bool isInsert = false)
+        public async Task<CourseViewModel> SaveCourse(CourseViewModel course, bool isInsert = false)
         {
+            var request = ToCourseEntity(course);
             var modelState = new ModelStateDictionary();
 
             if(isInsert)
-                _unitOfWork.CourseRepository.Insert(course);
-            else _unitOfWork.CourseRepository.Update(course);
-            var resolveConflicts = ConcurrencyHelper.ResolveConflicts(course, modelState);
-            int result = _unitOfWork.Save(resolveConflicts, userResolveConflict: true);
-            // Demonstrate ClientWins
-            // int result = _unitOfWork.SaveSingleEntry(RefreshConflict.ClientWins);
+                _unitOfWork.CourseRepository.Insert(request);
+            else _unitOfWork.CourseRepository.Update(request);
+
+            // Handle Conflicts here
+            int result;
+            if(course.ConflictStrategy == ResolveStrategy.ShowConflictsUnResolved)
+            {
+                var resolveConflicts = ConcurrencyHelper.ResolveConflicts(request, modelState);
+                result = _unitOfWork.Save(resolveConflicts, userResolveConflict: true);
+            }
+            else
+            {
+                RefreshConflict refreshMode = (RefreshConflict)course.ConflictStrategy;
+                if(!EnumHelper.IsFlagDefined(refreshMode))
+                    refreshMode = RefreshConflict.StoreWins;
+                result = _unitOfWork.SaveSingleEntry(refreshMode);
+            }
+
             if (result >0)
             {
                 return await Task.FromResult(ToCourseViewModel(await _unitOfWork.CourseRepository.GetByIDAsync(course.CourseID)));
             }
             else
             {
-                var response = ToCourseViewModel(course);
+                var response = course;
                 response.ModelState = modelState;
                 return await Task.FromResult(response);
             }
@@ -77,6 +90,15 @@ namespace CollegeUni.Services
             };
         }
 
+        Course ToCourseEntity(CourseViewModel course) {
+            return new Course
+            {
+                CourseID = course.CourseID,
+                Credits = course.Credits,
+                Title = course.Title,
+                RowVersion = course.RowVersion,
+            };
+        }
         public void RemoveCourse(int courseID)
         {
             _unitOfWork.CourseRepository.Delete(courseID);
