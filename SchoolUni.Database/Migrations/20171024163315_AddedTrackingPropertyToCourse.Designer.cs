@@ -12,9 +12,10 @@ using System;
 namespace SchoolUni.Database.Migrations
 {
     [DbContext(typeof(AuthContext))]
-    partial class AuthContextModelSnapshot : ModelSnapshot
+    [Migration("20171024163315_AddedTrackingPropertyToCourse")]
+    partial class AddedTrackingPropertyToCourse
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -64,7 +64,7 @@ namespace CollegeUni.Controllers
         /// </summary>
         /// <param name="value"></param>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]Course value)
+        public async Task<IActionResult> Post([FromBody]CourseViewModel value)
         {
             var result = await _courseService.SaveCourse(value, isInsert:true);
             return Ok(result);
@@ -77,10 +77,12 @@ namespace CollegeUni.Controllers
         /// <param name="id"></param>
         /// <param name="value"></param>
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody]Course value)
+        public async Task<IActionResult> Put(int id, [FromBody]CourseViewModel value)
         {
             var result = await _courseService.SaveCourse(value, isInsert:false);
-            return Ok(result);
+            if (result.ModelState.IsValid)
+                return Ok(result);
+            else return BadRequest(result.ModelState);
         }
 
         // DELETE api/values/5
