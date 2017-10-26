@@ -18,6 +18,10 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using CollegeUni.Services;
+using Microsoft.Extensions.PlatformAbstractions;
+using System.IO;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace CollegeUni
 {
@@ -119,14 +123,26 @@ namespace CollegeUni
             // Register the Swagger generator, defining one or more Swagger documents
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
+                c.SwaggerDoc("v1", new Info
+                {
+                    Version = "v1",
+                    Title = "College Uni API",
+                    Description = "A simple API for school course administration."
+                });
+                var basePath = PlatformServices.Default.Application.ApplicationBasePath;
+                var xmlPath = Path.Combine(basePath, "CollegeUni.xml");
+                c.IncludeXmlComments(xmlPath);
             });
-
             services.AddMvc();
             #endregion
 
             #region Add application services
             services.AddTransient<ITokenService, TokenService>();
+            services.AddTransient<ICourseService, CourseService>();
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddTransient<IGenericRepo<Course>, GenericRepo<Course>>();
+            services.AddTransient<IGenericRepo<Student>, GenericRepo<Student>>();
+            services.AddTransient<IGenericRepo<Enrollment>, GenericRepo<Enrollment>>();
             #endregion
         }
 
@@ -135,13 +151,11 @@ namespace CollegeUni
         {
             if (env.IsDevelopment())
             {
-                //app.UseStatusCodePages();
                 app.UseDeveloperExceptionPage();
             }
 
             // Shows UseCors with CorsPolicyBuilder.
             app.UseCors(builder =>
-                //builder.WithOrigins("http://docs.napa.com")
                 builder.AllowAnyOrigin()
                     .AllowAnyHeader()
                 );
@@ -156,6 +170,7 @@ namespace CollegeUni
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
+            
             app.UseMvc();
         }
     }

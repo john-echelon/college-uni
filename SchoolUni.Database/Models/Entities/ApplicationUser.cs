@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace SchoolUni.Database.Models.Entities
 {
@@ -43,6 +44,6 @@ namespace SchoolUni.Database.Models.Entities
         public string Title { get; set; }
         public int Credits { get; set; }
 
-        public ICollection<Enrollment> Enrollments { get; set; }
+        public IQueryable<Enrollment> Enrollments { get; set; }
     }
 }
