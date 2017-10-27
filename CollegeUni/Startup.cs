@@ -22,6 +22,8 @@ using Microsoft.Extensions.PlatformAbstractions;
 using System.IO;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using AutoMapper;
+using CollegeUni.Models;
 
 namespace CollegeUni
 {
@@ -144,6 +146,14 @@ namespace CollegeUni
             services.AddTransient<IGenericRepo<Student>, GenericRepo<Student>>();
             services.AddTransient<IGenericRepo<Enrollment>, GenericRepo<Enrollment>>();
             #endregion
+
+            #region AutoMapper
+            Mapper.Initialize(cfg => {
+                cfg.CreateMap<Course, CourseRequestViewModel>().ReverseMap();
+                cfg.CreateMap<Course, CourseResponseViewModel>().ReverseMap();
+            });
+            #endregion
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -170,7 +180,11 @@ namespace CollegeUni
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
-            
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetRequiredService<AuthContext>();
+                context.Database.Migrate();
+            }
             app.UseMvc();
         }
     }
