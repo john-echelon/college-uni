@@ -30,7 +30,7 @@ namespace SchoolUni.Database.Data
                 throw new ArgumentOutOfRangeException(nameof(retryCount));
             }
 
-            for (int retry = 1; retry <= retryCount; retry++)
+            for (int retry = 1; retry < retryCount; retry++)
             {
                 try
                 {
