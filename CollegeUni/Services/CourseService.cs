@@ -1,4 +1,5 @@
-﻿using CollegeUni.Models;
+﻿using AutoMapper;
+using CollegeUni.Models;
 using CollegeUni.Utilities;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SchoolUni.Database.Data;
@@ -18,7 +19,7 @@ namespace CollegeUni.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<BrowseResponse<Course>> GetCourses(StudentBrowseRequest request)
+        public async Task<BrowseResponse<CourseResponseViewModel>> GetCourses(StudentBrowseRequest request)
         {
             IQueryable<Course> query;
             var studentID = request.StudentID.GetValueOrDefault();
@@ -30,38 +31,39 @@ namespace CollegeUni.Services
             }
             else
                 query = _unitOfWork.CourseRepository.Get();
-            var response = new BrowseResponse<Course>
+
+            var response = new BrowseResponse<CourseResponseViewModel>
             {
                 PageInfo = request.PageInfo,
-                Data = await PaginatedData<Course>.GetPagedDataAsync(query, request.PageInfo.offset, request.PageInfo.limit)
+                Data = await Paginator.GetPagedDataAsync<Course, CourseResponseViewModel>(query, request.PageInfo.offset, request.PageInfo.limit)
             };
             return response;
         } 
 
-        public async Task<Course> GetCourse(int courseID)
+        public async Task<CourseResponseViewModel> GetCourse(int courseID)
         {
-            return await _unitOfWork.CourseRepository.GetByIDAsync(courseID);
+            return Mapper.Map<Course, CourseResponseViewModel>(await _unitOfWork.CourseRepository.GetByIDAsync(courseID));
         }
 
-        public async Task<CourseViewModel> SaveCourse(CourseViewModel course, bool isInsert = false)
+        public async Task<CourseResponseViewModel> SaveCourse(CourseRequestViewModel request, bool isInsert = false)
         {
-            var request = ToCourseEntity(course);
+            var courseEntity = Mapper.Map<CourseRequestViewModel, Course>(request);
             var modelState = new ModelStateDictionary();
 
             if(isInsert)
-                _unitOfWork.CourseRepository.Insert(request);
-            else _unitOfWork.CourseRepository.Update(request);
+                _unitOfWork.CourseRepository.Insert(courseEntity);
+            else _unitOfWork.CourseRepository.Update(courseEntity);
 
             // Handle Conflicts here
             int result;
-            if(course.ConflictStrategy == ResolveStrategy.ShowConflictsUnResolved)
+            if(request.ConflictStrategy == ResolveStrategy.ShowUnresolvedConflicts)
             {
-                var resolveConflicts = ConcurrencyHelper.ResolveConflicts(request, modelState);
+                var resolveConflicts = ConcurrencyHelper.ResolveConflicts(courseEntity, modelState);
                 result = _unitOfWork.Save(resolveConflicts, userResolveConflict: true);
             }
             else
             {
-                RefreshConflict refreshMode = (RefreshConflict)course.ConflictStrategy;
+                RefreshConflict refreshMode = (RefreshConflict)request.ConflictStrategy;
                 if(!EnumHelper.IsFlagDefined(refreshMode))
                     refreshMode = RefreshConflict.StoreWins;
                 result = _unitOfWork.SaveSingleEntry(refreshMode);
@@ -69,35 +71,16 @@ namespace CollegeUni.Services
 
             if (result >0)
             {
-                return await Task.FromResult(ToCourseViewModel(await _unitOfWork.CourseRepository.GetByIDAsync(course.CourseID)));
+                return await Task.FromResult(Mapper.Map<Course,CourseResponseViewModel>(await _unitOfWork.CourseRepository.GetByIDAsync(courseEntity.CourseID)));
             }
             else
             {
-                var response = course;
+                var response = Mapper.Map<Course, CourseResponseViewModel>(courseEntity);
                 response.ModelState = modelState;
                 return await Task.FromResult(response);
             }
         }
 
-        CourseViewModel ToCourseViewModel(Course course) {
-            return new CourseViewModel
-            {
-                CourseID = course.CourseID,
-                Credits = course.Credits,
-                Title = course.Title,
-                RowVersion = course.RowVersion,
-            };
-        }
-
-        Course ToCourseEntity(CourseViewModel course) {
-            return new Course
-            {
-                CourseID = course.CourseID,
-                Credits = course.Credits,
-                Title = course.Title,
-                RowVersion = course.RowVersion,
-            };
-        }
         public void RemoveCourse(int courseID)
         {
             _unitOfWork.CourseRepository.Delete(courseID);

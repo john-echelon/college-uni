@@ -11,16 +11,19 @@ namespace CollegeUni.Models
     {
         StoreWins = RefreshConflict.StoreWins,
         ClientWins = RefreshConflict.ClientWins,
-        ShowConflictsUnResolved = 3,
+        ShowUnresolvedConflicts = 3,
     }
 
-    public class CourseViewModel
+    public class CourseRequestViewModel
     {
         public int CourseID { get; set; }
         public string Title { get; set; }
         public int Credits { get; set; }
         public byte[] RowVersion { get; set; }
-        public ModelStateDictionary ModelState { get; set; } = new ModelStateDictionary();
         public ResolveStrategy ConflictStrategy { get; set; } = ResolveStrategy.StoreWins;
+    }
+    public class CourseResponseViewModel: CourseRequestViewModel
+    {
+        public ModelStateDictionary ModelState { get; set; } = new ModelStateDictionary();
     }
 }

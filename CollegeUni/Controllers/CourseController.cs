@@ -31,6 +31,7 @@ namespace CollegeUni.Controllers
         /// <param name="studentID">An optional filter criteria to filter courses by student id.</param>
         /// <returns></returns>
         [HttpGet]
+        [ProducesResponseType(typeof(BrowseResponse<CourseResponseViewModel>), 200)]
         public async Task<IActionResult> Get(int offset, int limit, int? studentID =  null)
         {
             var result = await _courseService.GetCourses(
@@ -52,6 +53,7 @@ namespace CollegeUni.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(CourseResponseViewModel), 200)]
         public async Task<IActionResult> GetAsync(int id)
         {
             var result = await _courseService.GetCourse(id);
@@ -64,7 +66,8 @@ namespace CollegeUni.Controllers
         /// </summary>
         /// <param name="value"></param>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]CourseViewModel value)
+        [ProducesResponseType(typeof(CourseResponseViewModel), 200)]
+        public async Task<IActionResult> Post([FromBody]CourseRequestViewModel value)
         {
             var result = await _courseService.SaveCourse(value, isInsert:true);
             return Ok(result);
@@ -74,10 +77,10 @@ namespace CollegeUni.Controllers
         /// <summary>
         /// Updates a course.
         /// </summary>
-        /// <param name="id"></param>
         /// <param name="value"></param>
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody]CourseViewModel value)
+        [HttpPut]
+        [ProducesResponseType(typeof(CourseResponseViewModel), 200)]
+        public async Task<IActionResult> Put([FromBody]CourseRequestViewModel value)
         {
             var result = await _courseService.SaveCourse(value, isInsert:false);
             if (result.ModelState.IsValid)
