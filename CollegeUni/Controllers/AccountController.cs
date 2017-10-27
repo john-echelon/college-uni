@@ -76,11 +76,14 @@ namespace CollegeUni.Controllers
             {
                 return handledResult;
             }
-            await _signInManager.SignInAsync(user, isPersistent: false);
-            _logger.LogInformation(3, "User signed in with a new account.");
+            // Deprecated
+            //await _signInManager.SignInAsync(user, isPersistent: false);
+            //_logger.LogInformation(3, "User signed in with a new account.");
             return Ok(result);
         }
 
+        // Deprecated
+        /*
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody]LoginViewModel model)
@@ -111,5 +114,6 @@ namespace CollegeUni.Controllers
             _logger.LogInformation("User logged out.");
             return Ok();
         }
+        */
     }
 }

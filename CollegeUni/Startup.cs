@@ -22,6 +22,7 @@ using Microsoft.Extensions.PlatformAbstractions;
 using System.IO;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CollegeUni
 {
@@ -132,6 +133,7 @@ namespace CollegeUni
                 var basePath = PlatformServices.Default.Application.ApplicationBasePath;
                 var xmlPath = Path.Combine(basePath, "CollegeUni.xml");
                 c.IncludeXmlComments(xmlPath);
+                c.OperationFilter<AuthorizationHeaderParameterOperationFilter>();
             });
             services.AddMvc();
             #endregion
@@ -144,6 +146,11 @@ namespace CollegeUni
             services.AddTransient<IGenericRepo<Student>, GenericRepo<Student>>();
             services.AddTransient<IGenericRepo<Enrollment>, GenericRepo<Enrollment>>();
             #endregion
+
+            services.AddCors(
+                options => options.AddPolicy("AllowAllOrigins",
+                    builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().AllowCredentials()
+            ));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -155,10 +162,10 @@ namespace CollegeUni
             }
 
             // Shows UseCors with CorsPolicyBuilder.
-            app.UseCors(builder =>
-                builder.AllowAnyOrigin()
-                    .AllowAnyHeader()
-                );
+            app.UseCors("AllowAllOrigins");
+            //app.UseCors(builder => builder
+            //    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().AllowCredentials()
+            //);
 
             app.UseAuthentication();
 
@@ -172,6 +179,36 @@ namespace CollegeUni
             });
             
             app.UseMvc();
+        }
+
+    }
+
+    public class AuthorizationHeaderParameterOperationFilter: IOperationFilter
+    {
+        private readonly IOptions<AuthorizationOptions> authorizationOptions;
+
+        public AuthorizationHeaderParameterOperationFilter(IOptions<AuthorizationOptions> authorizationOptions)
+        {
+            this.authorizationOptions = authorizationOptions;
+        }
+        public void Apply(Operation operation, OperationFilterContext context)
+        {
+            var filterPipeline = context.ApiDescription.ActionDescriptor.FilterDescriptors;
+            var isAuthorized = filterPipeline.Select(filterInfo => filterInfo.Filter).Any(filter => filter is AuthorizeFilter);
+            var allowAnonymous = filterPipeline.Select(filterInfo => filterInfo.Filter).Any(filter => filter is IAllowAnonymousFilter);
+            if (isAuthorized && !allowAnonymous)
+            {
+                if (operation.Parameters == null)
+                    operation.Parameters = new List<IParameter>();
+                operation.Parameters.Add(new NonBodyParameter
+                {
+                    Name = "Authorization",
+                    In = "header",
+                    Description = "access token",
+                    Required = false,
+                    Type = "http"
+                });
+            }
         }
     }
 }
