@@ -39,7 +39,7 @@ namespace CollegeUni.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
             var user = await _userManager.FindByNameAsync(model.Email);
@@ -57,7 +57,9 @@ namespace CollegeUni.Controllers
                     expiration = token.ValidTo
                 });
             }
-            return BadRequest();
+
+            ModelState.AddModelError("Login", "Username or Password is invalid.");
+            return BadRequest(ModelState);
 
         }
         [HttpPost("register")]
@@ -82,8 +84,8 @@ namespace CollegeUni.Controllers
             return Ok(result);
         }
 
-        // Deprecated
         /*
+        [System.Obsolete]
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody]LoginViewModel model)
@@ -107,6 +109,7 @@ namespace CollegeUni.Controllers
             return BadRequest();
         }
 
+        [System.Obsolete]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
