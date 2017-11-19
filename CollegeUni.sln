@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.15
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CollegeUni", "CollegeUni\CollegeUni.csproj", "{259B0176-DEE9-49CE-B549-FAC784BC84E1}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -15,7 +15,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CollegeUni.Utilities", "Col
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{34E51A34-5B8D-4520-BEDB-B27A38BBD2ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CollegeUni.Api.Test", "CollegeUni.Api.Test\CollegeUni.Api.Test.csproj", "{A300957C-6E38-4A36-B125-A755F8355D4A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CollegeUni.Api.Test", "CollegeUni.Api.Test\CollegeUni.Api.Test.csproj", "{A300957C-6E38-4A36-B125-A755F8355D4A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{09F42710-9CCA-40E6-873B-6AE594C96E00} = {09F42710-9CCA-40E6-873B-6AE594C96E00}
+		{259B0176-DEE9-49CE-B549-FAC784BC84E1} = {259B0176-DEE9-49CE-B549-FAC784BC84E1}
+		{3EE487DF-AE7A-41C8-86B2-13A401B5ADD0} = {3EE487DF-AE7A-41C8-86B2-13A401B5ADD0}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{29D88D05-95CB-406E-90A7-9D0A8AD17F3B}"
 EndProject

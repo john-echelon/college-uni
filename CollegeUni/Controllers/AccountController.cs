@@ -34,7 +34,7 @@ namespace CollegeUni.Controllers
             var token = await _authService.GetJwtSecurityToken(result);
             if (token != null)
             {
-                return Ok(new
+                return Ok(new TokenResponseViewModel
                 {
                     token = new JwtSecurityTokenHandler().WriteToken(token),
                     expiration = token.ValidTo
@@ -60,6 +60,15 @@ namespace CollegeUni.Controllers
                 return handledResult;
             }
             _logger.LogInformation(3, "User registered an account.");
+            var token = await _authService.GetJwtSecurityToken(result);
+            if (token != null)
+            {
+                return Ok(new TokenResponseViewModel
+                {
+                    token = new JwtSecurityTokenHandler().WriteToken(token),
+                    expiration = token.ValidTo
+                });
+            }
             return Ok(result);
         }
     }
