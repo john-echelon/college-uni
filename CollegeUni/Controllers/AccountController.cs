@@ -34,11 +34,7 @@ namespace CollegeUni.Controllers
             var token = await _authService.GetJwtSecurityToken(result);
             if (token != null)
             {
-                return Ok(new TokenResponseViewModel
-                {
-                    token = new JwtSecurityTokenHandler().WriteToken(token),
-                    expiration = token.ValidTo
-                });
+                return Ok(token);
             }
 
             ModelState.AddModelError("Login", "Username or Password is invalid.");
@@ -63,13 +59,10 @@ namespace CollegeUni.Controllers
             var token = await _authService.GetJwtSecurityToken(result);
             if (token != null)
             {
-                return Ok(new TokenResponseViewModel
-                {
-                    token = new JwtSecurityTokenHandler().WriteToken(token),
-                    expiration = token.ValidTo
-                });
+                return Ok(token);
             }
-            return Ok(result);
+            ModelState.AddModelError("Registration", "Registration failed..");
+            return BadRequest(ModelState);
         }
     }
 }

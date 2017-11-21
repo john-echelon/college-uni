@@ -177,9 +177,6 @@ namespace CollegeUni
 
             // Shows UseCors with CorsPolicyBuilder.
             app.UseCors("AllowAllOrigins");
-            //app.UseCors(builder => builder
-            //    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().AllowCredentials()
-            //);
 
             app.UseAuthentication();
 

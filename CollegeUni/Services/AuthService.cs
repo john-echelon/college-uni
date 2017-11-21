@@ -25,11 +25,16 @@ namespace CollegeUni.Services
             _signInManager = signInManager;
             _tokenManager = tokenManager;
         }
-        public async Task<JwtSecurityToken> GetJwtSecurityToken(AuthServiceResult serviceResult)
+        public async Task<TokenResponseViewModel> GetJwtSecurityToken(AuthServiceResult serviceResult)
         {
             if ((serviceResult?.UserSignIn.Succeeded ?? false) || (serviceResult?.UserIdentity.Succeeded ?? false))
             {
-                var token = await _tokenManager.GetJwtSecurityToken(serviceResult.User);
+                var securityToken = await _tokenManager.GetJwtSecurityToken(serviceResult.User);
+                return new TokenResponseViewModel
+                {
+                    token = new JwtSecurityTokenHandler().WriteToken(securityToken),
+                    expiration = securityToken.ValidTo
+                };
             }
             return null;
         }

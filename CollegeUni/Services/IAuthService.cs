@@ -13,7 +13,7 @@ namespace CollegeUni.Services
     public interface IAuthService
     {
         Task<AuthServiceResult> ValidateUser(LoginViewModel model);
-        Task<JwtSecurityToken> GetJwtSecurityToken(AuthServiceResult serviceResult);
+        Task<TokenResponseViewModel> GetJwtSecurityToken(AuthServiceResult serviceResult);
         Task<AuthServiceResult> RegisterUser(RegisterViewModel model);
     }
 
