@@ -31,15 +31,18 @@ namespace CollegeUni.Controllers
                 return BadRequest(ModelState);
             }
             var result = await _authService.ValidateUser(model);
+            if (!result.UserSignIn.Succeeded)
+            {
+                ModelState.AddModelError("Login", "Username or Password is invalid.");
+                return BadRequest(ModelState);
+            }
             var token = await _authService.GetJwtSecurityToken(result);
             if (token != null)
             {
                 return Ok(token);
             }
-
-            ModelState.AddModelError("Login", "Username or Password is invalid.");
-            return BadRequest(ModelState);
-
+            ModelState.AddModelError("Login", "Login Failed.");
+            return BadRequest();
         }
         [HttpPost("register")]
         [AllowAnonymous]
@@ -56,13 +59,7 @@ namespace CollegeUni.Controllers
                 return handledResult;
             }
             _logger.LogInformation(3, "User registered an account.");
-            var token = await _authService.GetJwtSecurityToken(result);
-            if (token != null)
-            {
-                return Ok(token);
-            }
-            ModelState.AddModelError("Registration", "Registration failed..");
-            return BadRequest(ModelState);
+            return Ok();
         }
     }
 }
