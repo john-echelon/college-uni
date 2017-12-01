@@ -34,13 +34,9 @@ namespace CollegeUni.Controllers
         [HttpGet("badresult")]
         public IActionResult BadRequestResultAction()
         {
+            // Demonstrates expection handling here. See also ApiExceptionFilter
             ModelState.AddModelError("Login", "Token request has failed.");
-            //var result = new ServiceResult { Message = "Failed to generate token.", ModelState = ModelState };
-            var result = new ServiceResult<LoginViewModel>
-            {
-                Message = "Failed to generate token.",
-                Data = new LoginViewModel { Email = "mbriggs@example.com" }
-            };
+            var result = new ServiceResult<LoginViewModel> { Message = "Failed to generate token.", ModelState = ModelState };
             return BadRequest(result);
         }
         [HttpGet("notfound")]
@@ -49,10 +45,10 @@ namespace CollegeUni.Controllers
             return NotFound();
         }
         [HttpGet("exception")]
-        public IActionResult ThrowExceptionAction()
+        public IActionResult ThrowExceptionAction(int statusCode = 500)
         {
             ModelState.AddModelError("Login", "Token request has failed.");
-            throw new CustomException("Failed to generate token.", ModelState);
+            throw new CustomException("Failed to generate token.", ModelState, statusCode);
             // Any uncaught exception is equivalent to the general InternalServerError: 500.
         }
         [HttpGet("badgateway")]

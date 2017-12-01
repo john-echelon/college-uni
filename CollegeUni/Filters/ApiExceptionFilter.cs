@@ -1,5 +1,6 @@
 ﻿using CollegeUni.Filters;
 using CollegeUni.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using System;
@@ -22,6 +23,16 @@ namespace CollegeUni.Filters
             {
                 var customEx = context.Exception as CustomException;
                 _logger.LogError(3, parseException(customEx));
+                // Demonstrates an unhandled exception as an http response.
+                if(!context.ExceptionHandled && customEx.StatusCode != 500)
+                {
+                    var serviceResult = new ServiceResult
+                    {
+                        Message = customEx.Message,
+                        ModelState = customEx.ModelState
+                    };
+                    context.Result = new ObjectResult(serviceResult) { StatusCode = customEx.StatusCode };
+                }
             }
         }
 

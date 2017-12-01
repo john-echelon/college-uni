@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,10 @@ namespace CollegeUni.Models
     public class ServiceResult
     {
         public string Message { get; set; }
+        /// <summary>
+        /// ModelState hidden from Json serialiation. Override ParseModelState to alter serialization of the ModelState.
+        /// </summary>
+        [JsonIgnore]
         public ModelStateDictionary ModelState { protected get; set; }
         public object Errors
         {
