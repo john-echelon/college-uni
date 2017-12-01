@@ -26,8 +26,9 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 using CollegeUni.Models;
+using CollegeUni.Filters;
 
-namespace CollegeUni
+namespace CollegeUni.Configuration
 {
     public class Startup
     {
@@ -138,7 +139,9 @@ namespace CollegeUni
                 c.IncludeXmlComments(xmlPath);
                 c.OperationFilter<AuthorizationHeaderParameterOperationFilter>();
             });
-            services.AddMvc();
+            services.AddMvc(options => {
+                options.Filters.Add(typeof(ApiExceptionFilter)); // by type
+            });
             #endregion
 
             #region Add application services

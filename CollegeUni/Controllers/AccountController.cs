@@ -34,6 +34,7 @@ namespace CollegeUni.Controllers
             if (!result.UserSignIn.Succeeded)
             {
                 ModelState.AddModelError("Login", "Username or Password is invalid.");
+                _logger.LogInformation(3, string.Format("Sign in Failed. User {0}", model.Email));
                 return BadRequest(ModelState);
             }
             var token = await _authService.GetJwtSecurityToken(result);
@@ -42,6 +43,7 @@ namespace CollegeUni.Controllers
                 return Ok(token);
             }
             ModelState.AddModelError("Login", "Login Failed.");
+            _logger.LogError(3, string.Format("Token Generation failed. User {0}", model.Email));
             return BadRequest();
         }
         [HttpPost("register")]
