@@ -25,9 +25,10 @@ namespace CollegeUni.Services
             _signInManager = signInManager;
             _tokenManager = tokenManager;
         }
+      
         public async Task<TokenResponseViewModel> GetJwtSecurityToken(AuthServiceResult serviceResult)
         {
-            if ((serviceResult?.UserSignIn.Succeeded ?? false) || (serviceResult?.UserIdentity.Succeeded ?? false))
+            if (serviceResult.UserSignIn.Succeeded && serviceResult.User != null)
             {
                 var securityToken = await _tokenManager.GetJwtSecurityToken(serviceResult.User);
                 return new TokenResponseViewModel
