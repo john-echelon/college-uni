@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.IdentityModel.Tokens.Jwt;
 using CollegeUni.Api.Models;
 using Microsoft.AspNetCore.Identity;
-using SchoolUni.Database.Models.Entities;
+using CollegeUni.Data.Models.Entities;
 using CollegeUni.Api.Managers;
 
 namespace CollegeUni.Api.Services

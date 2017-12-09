@@ -1,12 +1,12 @@
 //using Microsoft.AspNetCore.Identity;
 //using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-//using SchoolUni.Database.Models;
+//using CollegeUni.Data.Models;
 //using System;
 //using System.Collections.Generic;
 //using System.Text;
 //using System.Threading.Tasks;
 
-//namespace SchoolUni.Database.Repos
+//namespace CollegeUni.Data.Repos
 //{
 //    public class AuthRepos : IDisposable
 //    {

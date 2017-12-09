@@ -1,4 +1,4 @@
-using SchoolUni.Database.Data;
+using CollegeUni.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;

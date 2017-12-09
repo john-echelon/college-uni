@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using CollegeUni.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using CollegeUni.Api.Models;
-using SchoolUni.Database.Models.Entities;
+using CollegeUni.Data.Models.Entities;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

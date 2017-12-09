@@ -111,7 +111,7 @@ namespace CollegeUni.Api.Api.Test
 
             authServiceResult = new AuthServiceResult
             {
-                User = new SchoolUni.Database.Models.Entities.ApplicationUser
+                User = new CollegeUni.Data.Models.Entities.ApplicationUser
                 {
                     Email = "marilyn443@example.com"
                 },
@@ -150,7 +150,7 @@ namespace CollegeUni.Api.Api.Test
             // Setup RegisterUser
             var authServiceResult = new AuthServiceResult
             {
-                User = new SchoolUni.Database.Models.Entities.ApplicationUser
+                User = new CollegeUni.Data.Models.Entities.ApplicationUser
                 {
                     Email = "marilyn443@example.com"
                 },

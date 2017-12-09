@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using SchoolUni.Database.Models.Entities;
+using CollegeUni.Data.Models.Entities;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SchoolUni.Database.Data
+namespace CollegeUni.Data
 {
     public class AuthContext : IdentityDbContext<ApplicationUser>
     {

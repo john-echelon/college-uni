@@ -3,18 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-using SchoolUni.Database.Data;
-using SchoolUni.Database.Models.Entities;
 using System;
 
-namespace SchoolUni.Database.Migrations
+namespace CollegeUni.Data.Migrations
 {
     [DbContext(typeof(AuthContext))]
-    partial class AuthContextModelSnapshot : ModelSnapshot
+    [Migration("20171019005010_DescriptionAddedToStudent")]
+    partial class DescriptionAddedToStudent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -129,7 +126,7 @@ namespace SchoolUni.Database.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("SchoolUni.Database.Models.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("CollegeUni.Data.Data.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
@@ -180,15 +177,11 @@ namespace SchoolUni.Database.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("SchoolUni.Database.Models.Entities.Course", b =>
+            modelBuilder.Entity("CollegeUni.Data.Data.Course", b =>
                 {
                     b.Property<int>("CourseID");
 
                     b.Property<int>("Credits");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<string>("Title");
 
@@ -197,7 +190,7 @@ namespace SchoolUni.Database.Migrations
                     b.ToTable("Course");
                 });
 
-            modelBuilder.Entity("SchoolUni.Database.Models.Entities.Enrollment", b =>
+            modelBuilder.Entity("CollegeUni.Data.Data.Enrollment", b =>
                 {
                     b.Property<int>("EnrollmentID")
                         .ValueGeneratedOnAdd();
@@ -217,7 +210,7 @@ namespace SchoolUni.Database.Migrations
                     b.ToTable("Enrollment");
                 });
 
-            modelBuilder.Entity("SchoolUni.Database.Models.Entities.Student", b =>
+            modelBuilder.Entity("CollegeUni.Data.Data.Student", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd();
@@ -245,7 +238,7 @@ namespace SchoolUni.Database.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("SchoolUni.Database.Models.Entities.ApplicationUser")
+                    b.HasOne("CollegeUni.Data.Data.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -253,7 +246,7 @@ namespace SchoolUni.Database.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("SchoolUni.Database.Models.Entities.ApplicationUser")
+                    b.HasOne("CollegeUni.Data.Data.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -266,7 +259,7 @@ namespace SchoolUni.Database.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("SchoolUni.Database.Models.Entities.ApplicationUser")
+                    b.HasOne("CollegeUni.Data.Data.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -274,20 +267,20 @@ namespace SchoolUni.Database.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("SchoolUni.Database.Models.Entities.ApplicationUser")
+                    b.HasOne("CollegeUni.Data.Data.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("SchoolUni.Database.Models.Entities.Enrollment", b =>
+            modelBuilder.Entity("CollegeUni.Data.Data.Enrollment", b =>
                 {
-                    b.HasOne("SchoolUni.Database.Models.Entities.Course", "Course")
+                    b.HasOne("CollegeUni.Data.Data.Course", "Course")
                         .WithMany("Enrollments")
                         .HasForeignKey("CourseID")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("SchoolUni.Database.Models.Entities.Student", "Student")
+                    b.HasOne("CollegeUni.Data.Data.Student", "Student")
                         .WithMany("Enrollments")
                         .HasForeignKey("StudentID")
                         .OnDelete(DeleteBehavior.Cascade);

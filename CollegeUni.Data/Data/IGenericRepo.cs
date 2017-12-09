@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace SchoolUni.Database.Data
+namespace CollegeUni.Data
 {
     public interface IGenericRepo<TEntity> where TEntity : class
     {

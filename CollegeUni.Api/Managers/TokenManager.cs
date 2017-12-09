@@ -1,6 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
-using SchoolUni.Database.Models.Entities;
+using CollegeUni.Data.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using System;

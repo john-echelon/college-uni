@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.ComponentModel.DataAnnotations;
 
-namespace SchoolUni.Database.Models.Entities
+namespace CollegeUni.Data.Models.Entities
 {
     public class ApplicationUser : IdentityUser
     {

@@ -3,12 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-using SchoolUni.Database.Data;
 using System;
 
-namespace SchoolUni.Database.Migrations
+namespace CollegeUni.Data.Migrations
 {
     [DbContext(typeof(AuthContext))]
     [Migration("20171019002343_CreateIdentitySchema")]
@@ -129,7 +126,7 @@ namespace SchoolUni.Database.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("SchoolUni.Database.Data.ApplicationUser", b =>
+            modelBuilder.Entity("CollegeUni.Data.Data.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
@@ -180,7 +177,7 @@ namespace SchoolUni.Database.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("SchoolUni.Database.Data.Course", b =>
+            modelBuilder.Entity("CollegeUni.Data.Data.Course", b =>
                 {
                     b.Property<int>("CourseID");
 
@@ -193,7 +190,7 @@ namespace SchoolUni.Database.Migrations
                     b.ToTable("Course");
                 });
 
-            modelBuilder.Entity("SchoolUni.Database.Data.Enrollment", b =>
+            modelBuilder.Entity("CollegeUni.Data.Data.Enrollment", b =>
                 {
                     b.Property<int>("EnrollmentID")
                         .ValueGeneratedOnAdd();
@@ -213,7 +210,7 @@ namespace SchoolUni.Database.Migrations
                     b.ToTable("Enrollment");
                 });
 
-            modelBuilder.Entity("SchoolUni.Database.Data.Student", b =>
+            modelBuilder.Entity("CollegeUni.Data.Data.Student", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd();
@@ -239,7 +236,7 @@ namespace SchoolUni.Database.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("SchoolUni.Database.Data.ApplicationUser")
+                    b.HasOne("CollegeUni.Data.Data.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -247,7 +244,7 @@ namespace SchoolUni.Database.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("SchoolUni.Database.Data.ApplicationUser")
+                    b.HasOne("CollegeUni.Data.Data.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -260,7 +257,7 @@ namespace SchoolUni.Database.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("SchoolUni.Database.Data.ApplicationUser")
+                    b.HasOne("CollegeUni.Data.Data.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -268,20 +265,20 @@ namespace SchoolUni.Database.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("SchoolUni.Database.Data.ApplicationUser")
+                    b.HasOne("CollegeUni.Data.Data.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("SchoolUni.Database.Data.Enrollment", b =>
+            modelBuilder.Entity("CollegeUni.Data.Data.Enrollment", b =>
                 {
-                    b.HasOne("SchoolUni.Database.Data.Course", "Course")
+                    b.HasOne("CollegeUni.Data.Data.Course", "Course")
                         .WithMany("Enrollments")
                         .HasForeignKey("CourseID")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("SchoolUni.Database.Data.Student", "Student")
+                    b.HasOne("CollegeUni.Data.Data.Student", "Student")
                         .WithMany("Enrollments")
                         .HasForeignKey("StudentID")
                         .OnDelete(DeleteBehavior.Cascade);

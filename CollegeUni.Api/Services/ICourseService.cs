@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using CollegeUni.Api.Models;
-using SchoolUni.Database.Models.Entities;
+using CollegeUni.Data.Models.Entities;
 
 namespace CollegeUni.Api.Services
 {

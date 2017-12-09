@@ -2,25 +2,24 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 using System.Collections.Generic;
 
-namespace SchoolUni.Database.Migrations
+namespace CollegeUni.Data.Migrations
 {
-    public partial class AddedTrackingPropertyToCourse : Migration
+    public partial class DescriptionAddedToStudent : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<byte[]>(
-                name: "RowVersion",
-                table: "Course",
-                type: "rowversion",
-                rowVersion: true,
+            migrationBuilder.AddColumn<string>(
+                name: "Description",
+                table: "Student",
+                type: "nvarchar(max)",
                 nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "RowVersion",
-                table: "Course");
+                name: "Description",
+                table: "Student");
         }
     }
 }

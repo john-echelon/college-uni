@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SchoolUni.Database.Data
+namespace CollegeUni.Data
 {
     public class Paginator
     {

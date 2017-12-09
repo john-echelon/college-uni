@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SchoolUni.Database.Data
+namespace CollegeUni.Data
 {
     public class GenericRepo<TEntity> : IGenericRepo<TEntity> where TEntity : class
     {

@@ -1,7 +1,7 @@
 using CollegeUni.Api.Managers;
 using CollegeUni.Api.Models;
 using Microsoft.AspNetCore.Identity;
-using SchoolUni.Database.Models.Entities;
+using CollegeUni.Data.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;

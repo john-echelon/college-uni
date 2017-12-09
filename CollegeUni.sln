@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CollegeUni.Api", "CollegeUn
 		{3EE487DF-AE7A-41C8-86B2-13A401B5ADD0} = {3EE487DF-AE7A-41C8-86B2-13A401B5ADD0}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SchoolUni.Database", "SchoolUni.Database\SchoolUni.Database.csproj", "{3EE487DF-AE7A-41C8-86B2-13A401B5ADD0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CollegeUni.Data", "CollegeUni.Data\CollegeUni.Data.csproj", "{3EE487DF-AE7A-41C8-86B2-13A401B5ADD0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CollegeUni.Utilities", "CollegeUni.Utilities\CollegeUni.Utilities.csproj", "{09F42710-9CCA-40E6-873B-6AE594C96E00}"
 EndProject
