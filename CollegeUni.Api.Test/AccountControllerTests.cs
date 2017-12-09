@@ -1,7 +1,7 @@
-using CollegeUni.Controllers;
-using CollegeUni.Models;
-using CollegeUni.Services;
-using CollegeUni.Test.Core;
+using CollegeUni.Api.Api.Controllers;
+using CollegeUni.Api.Api.Models;
+using CollegeUni.Api.Api.Services;
+using CollegeUni.Api.Api.Test.Core;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -10,7 +10,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using Xunit;
-namespace CollegeUni.Api.Test
+namespace CollegeUni.Api.Api.Test
 {
     public class WhenUserRequestsLogin: TestBase
     {

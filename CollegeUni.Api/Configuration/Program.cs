@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using SchoolUni.Database.Data;
 
-namespace CollegeUni.Configuration
+namespace CollegeUni.Api.Configuration
 {
     public class Program
     {

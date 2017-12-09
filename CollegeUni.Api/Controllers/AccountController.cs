@@ -1,5 +1,5 @@
-﻿using CollegeUni.Models;
-using CollegeUni.Services;
+using CollegeUni.Api.Models;
+using CollegeUni.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +9,7 @@ using SchoolUni.Database.Models.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 
-namespace CollegeUni.Controllers
+namespace CollegeUni.Api.Controllers
 {
     [Route("api/[controller]")]
     public class AccountController : CollegeUniBaseController

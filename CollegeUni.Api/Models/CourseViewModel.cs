@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SchoolUni.Database.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CollegeUni.Models
+namespace CollegeUni.Api.Models
 {
     public enum ResolveStrategy
     {

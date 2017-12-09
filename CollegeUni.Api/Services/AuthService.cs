@@ -1,14 +1,14 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IdentityModel.Tokens.Jwt;
-using CollegeUni.Models;
+using CollegeUni.Api.Models;
 using Microsoft.AspNetCore.Identity;
 using SchoolUni.Database.Models.Entities;
-using CollegeUni.Managers;
+using CollegeUni.Api.Managers;
 
-namespace CollegeUni.Services
+namespace CollegeUni.Api.Services
 {
     public class AuthService : IAuthService
     {

@@ -1,5 +1,5 @@
-﻿using CollegeUni.Managers;
-using CollegeUni.Models;
+using CollegeUni.Api.Managers;
+using CollegeUni.Api.Models;
 using Microsoft.AspNetCore.Identity;
 using SchoolUni.Database.Models.Entities;
 using System;
@@ -8,7 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CollegeUni.Services
+namespace CollegeUni.Api.Services
 {
     public interface IAuthService
     {

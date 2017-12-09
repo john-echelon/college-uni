@@ -1,5 +1,5 @@
-﻿using CollegeUni.Filters;
-using CollegeUni.Models;
+using CollegeUni.Api.Filters;
+using CollegeUni.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CollegeUni.Filters
+namespace CollegeUni.Api.Filters
 {
     public class ApiExceptionFilter : ExceptionFilterAttribute
     {

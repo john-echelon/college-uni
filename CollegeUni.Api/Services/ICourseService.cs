@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
-using CollegeUni.Models;
+using System.Threading.Tasks;
+using CollegeUni.Api.Models;
 using SchoolUni.Database.Models.Entities;
 
-namespace CollegeUni.Services
+namespace CollegeUni.Api.Services
 {
     public interface ICourseService
     {

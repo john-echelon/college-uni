@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 
-namespace CollegeUni.Utilities
+namespace CollegeUni.Api.Utilities
 {
     public class EnumHelper
     {

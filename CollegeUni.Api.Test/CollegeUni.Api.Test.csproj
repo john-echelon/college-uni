@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CollegeUni.Test.Core\CollegeUni.Test.Core.csproj" />
-    <ProjectReference Include="..\CollegeUni\CollegeUni.csproj" />
+    <ProjectReference Include="..\CollegeUni.Api\CollegeUni.Api.csproj" />
   </ItemGroup>
 
 </Project>

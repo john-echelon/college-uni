@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,18 +17,18 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using CollegeUni.Services;
-using CollegeUni.Managers;
+using CollegeUni.Api.Services;
+using CollegeUni.Api.Managers;
 using Microsoft.Extensions.PlatformAbstractions;
 using System.IO;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
-using CollegeUni.Models;
-using CollegeUni.Filters;
+using CollegeUni.Api.Models;
+using CollegeUni.Api.Filters;
 
-namespace CollegeUni.Configuration
+namespace CollegeUni.Api.Configuration
 {
     public class Startup
     {
@@ -135,7 +135,7 @@ namespace CollegeUni.Configuration
                     Description = "A simple API for school course administration."
                 });
                 var basePath = PlatformServices.Default.Application.ApplicationBasePath;
-                var xmlPath = Path.Combine(basePath, "CollegeUni.xml");
+                var xmlPath = Path.Combine(basePath, "CollegeUni.Api.xml");
                 c.IncludeXmlComments(xmlPath);
                 c.OperationFilter<AuthorizationHeaderParameterOperationFilter>();
             });

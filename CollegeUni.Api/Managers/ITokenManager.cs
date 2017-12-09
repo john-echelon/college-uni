@@ -1,11 +1,11 @@
-﻿using SchoolUni.Database.Models.Entities;
+using SchoolUni.Database.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CollegeUni.Managers
+namespace CollegeUni.Api.Managers
 {
     public interface ITokenManager
     {

@@ -1,6 +1,6 @@
-﻿using AutoMapper;
-using CollegeUni.Models;
-using CollegeUni.Utilities;
+using AutoMapper;
+using CollegeUni.Api.Models;
+using CollegeUni.Api.Utilities;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SchoolUni.Database.Data;
 using SchoolUni.Database.Models.Entities;
@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CollegeUni.Services
+namespace CollegeUni.Api.Services
 {
     public class CourseService : ICourseService
     {

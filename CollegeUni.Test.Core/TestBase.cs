@@ -1,7 +1,7 @@
 using System;
 using Xunit;
 
-namespace CollegeUni.Test.Core
+namespace CollegeUni.Api.Test.Core
 {
     public abstract class TestBase : IDisposable
     {

@@ -1,10 +1,10 @@
-﻿using CollegeUni.Filters;
-using CollegeUni.Models;
+using CollegeUni.Api.Filters;
+using CollegeUni.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-namespace CollegeUni.Controllers
+namespace CollegeUni.Api.Controllers
 {
     [AllowAnonymous]
     [Produces("application/json")]

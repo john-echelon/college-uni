@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using SchoolUni.Database.Models.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Linq;
 
-namespace CollegeUni.Managers
+namespace CollegeUni.Api.Managers
 {
     public class TokenManager : ITokenManager
     {
