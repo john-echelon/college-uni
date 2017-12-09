@@ -5,9 +5,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CollegeUni.Managers
+namespace CollegeUni.Services
 {
-    public interface ITokenManager
+    public interface ITokenService
     {
         Task<JwtSecurityToken> GetJwtSecurityToken(ApplicationUser user);
     }

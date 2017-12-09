@@ -14,13 +14,24 @@ namespace CollegeUni.Controllers
     [Route("api/[controller]")]
     public class AccountController : CollegeUniBaseController
     {
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger _logger;
-        private readonly IAuthService _authService;
+        private readonly IConfiguration _configuration;
+        private readonly ITokenService _tokenService;
 
-        public AccountController(IAuthService authService, ILogger<AccountController> logger)
+        public AccountController(
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            ITokenService tokenService,
+            ILogger<AccountController> logger,
+            IConfiguration configuration)
         {
+            _userManager = userManager;
+            _signInManager = signInManager;
             _logger = logger;
-            _authService = authService;
+            _configuration = configuration;
+            _tokenService = tokenService;
         }
 
         [HttpPost("token")]
@@ -30,19 +41,26 @@ namespace CollegeUni.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var result = await _authService.ValidateUser(model);
-            if (!result.UserSignIn.Succeeded)
+
+            var user = await _userManager.FindByNameAsync(model.Email);
+
+            var result = await _signInManager.CheckPasswordSignInAsync(user,
+            model.Password, lockoutOnFailure: false);
+
+            if (result.Succeeded)
             {
-                ModelState.AddModelError("Login", "Username or Password is invalid.");
-                return BadRequest(ModelState);
+                var token = await _tokenService.GetJwtSecurityToken(user);
+
+                return Ok(new
+                {
+                    token = new JwtSecurityTokenHandler().WriteToken(token),
+                    expiration = token.ValidTo
+                });
             }
-            var token = await _authService.GetJwtSecurityToken(result);
-            if (token != null)
-            {
-                return Ok(token);
-            }
-            ModelState.AddModelError("Login", "Login Failed.");
-            return BadRequest();
+
+            ModelState.AddModelError("Login", "Username or Password is invalid.");
+            return BadRequest(ModelState);
+
         }
         [HttpPost("register")]
         [AllowAnonymous]
@@ -52,14 +70,53 @@ namespace CollegeUni.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var result = await _authService.RegisterUser(model);
-            var handledResult = HandleResult(result.UserIdentity);
+            var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+            var result = await _userManager.CreateAsync(user, model.Password);
+            _logger.LogInformation(3, "User created a new account with password.");
+            var handledResult = HandleResult(result);
             if (handledResult != null)
             {
                 return handledResult;
             }
-            _logger.LogInformation(3, "User registered an account.");
+            // Deprecated
+            //await _signInManager.SignInAsync(user, isPersistent: false);
+            //_logger.LogInformation(3, "User signed in with a new account.");
+            return Ok(result);
+        }
+
+        /*
+        [System.Obsolete]
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Login([FromBody]LoginViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // This doesn't count login failures towards account lockout
+            // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+            var result = await _signInManager.PasswordSignInAsync(model.Email,
+                model.Password, model.RememberMe, lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation(1, "User logged in.");
+                return Ok();
+
+            }
+            return BadRequest();
+        }
+
+        [System.Obsolete]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            _logger.LogInformation("User logged out.");
             return Ok();
         }
+        */
     }
 }

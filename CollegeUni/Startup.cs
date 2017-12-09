@@ -18,7 +18,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using CollegeUni.Services;
-using CollegeUni.Managers;
 using Microsoft.Extensions.PlatformAbstractions;
 using System.IO;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -142,8 +141,7 @@ namespace CollegeUni
             #endregion
 
             #region Add application services
-            services.AddTransient<ITokenManager, TokenManager>();
-            services.AddTransient<IAuthService, AuthService>();
+            services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<ICourseService, CourseService>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IGenericRepo<Course>, GenericRepo<Course>>();
@@ -177,6 +175,9 @@ namespace CollegeUni
 
             // Shows UseCors with CorsPolicyBuilder.
             app.UseCors("AllowAllOrigins");
+            //app.UseCors(builder => builder
+            //    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().AllowCredentials()
+            //);
 
             app.UseAuthentication();
 
