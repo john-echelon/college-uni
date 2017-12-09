@@ -12,6 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CollegeUni.Utilities\CollegeUni.Utilities.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="Microsoft.Rest.ClientRuntime">
       <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.rest.clientruntime\2.3.8\lib\netstandard1.4\Microsoft.Rest.ClientRuntime.dll</HintPath>
     </Reference>

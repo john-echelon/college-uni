@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\CollegeUni.Services\CollegeUni.Services.csproj" />
     <ProjectReference Include="..\CollegeUni.Utilities\CollegeUni.Utilities.csproj" />
     <ProjectReference Include="..\CollegeUni.Data\CollegeUni.Data.csproj" />
   </ItemGroup>

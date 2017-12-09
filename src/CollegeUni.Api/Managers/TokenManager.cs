@@ -15,7 +15,6 @@ namespace CollegeUni.Api.Managers
     public class TokenManager : ITokenManager
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
         public TokenManager(UserManager<ApplicationUser> userManager, IConfiguration configuration) {
             _userManager = userManager;

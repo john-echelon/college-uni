@@ -1,7 +1,7 @@
-using CollegeUni.Api.Api.Controllers;
-using CollegeUni.Api.Api.Models;
-using CollegeUni.Api.Api.Services;
-using CollegeUni.Api.Api.Test.Core;
+using CollegeUni.Api.Controllers;
+using CollegeUni.Api.Models;
+using CollegeUni.Api.Services;
+using CollegeUni.Api.Test.Core;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -181,7 +181,7 @@ namespace CollegeUni.Api.Api.Test
             mockAuthService.Verify(svc => svc.RegisterUser(model), Times.Once());
         }
         private void SetupData() {
-            var model = new RegisterViewModel
+            model = new RegisterViewModel
             {
                 Email = "marilyn443@example.com",
                 Password = "EchoLimaBudgie10320",
