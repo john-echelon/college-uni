@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using SchoolUni.Database.Data;
 
-namespace CollegeUni
+namespace CollegeUni.Configuration
 {
     public class Program
     {
