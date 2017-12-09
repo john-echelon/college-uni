@@ -10,13 +10,14 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Linq;
 
-namespace CollegeUni.Services
+namespace CollegeUni.Managers
 {
-    public class TokenService : ITokenService
+    public class TokenManager : ITokenManager
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
-        public TokenService(UserManager<ApplicationUser> userManager, IConfiguration configuration) {
+        public TokenManager(UserManager<ApplicationUser> userManager, IConfiguration configuration) {
             _userManager = userManager;
             _configuration = configuration;
         }
