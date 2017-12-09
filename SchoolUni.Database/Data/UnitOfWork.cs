@@ -1,6 +1,9 @@
-﻿using SchoolUni.Database.Models.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using SchoolUni.Database.Models.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -48,15 +51,40 @@ namespace SchoolUni.Database.Data
                 return this._enrollmentRepository;
             }
         }
+
         public void Save()
         {
             _context.SaveChanges();
         }
 
+        public int Save(Action<IEnumerable<EntityEntry>> resolveConflicts, int retryCount = 3, bool userResolveConflict = false)
+        {
+            return _context.SaveChanges(resolveConflicts, retryCount, userResolveConflict);
+        }
+
+        public int SaveSingleEntry(RefreshConflict refreshMode, int retryCount = 3)
+        {
+            Action<IEnumerable<EntityEntry>> resolveConflicts = (entries) =>
+            {
+                entries.Single().Refresh(refreshMode);
+            };
+            return _context.SaveChanges(resolveConflicts, retryCount);
+        }
+ 
+        public int SaveMultipleEntries(RefreshConflict refreshMode, int retryCount = 3)
+        {
+            Action<IEnumerable<EntityEntry>> resolveConflicts = (entries) =>
+            {
+                (entries as List<EntityEntry>).ForEach(entry => entry.Refresh(refreshMode));
+            };
+            return _context.SaveChanges(resolveConflicts, retryCount);
+        }
+  
         public Task<int> SaveAsync()
         {
             return _context.SaveChangesAsync();
         }
+
         private bool disposed = false;
 
         protected virtual void Dispose(bool disposing)

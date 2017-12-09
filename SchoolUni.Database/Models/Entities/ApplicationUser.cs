@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.ComponentModel.DataAnnotations;
 
 namespace SchoolUni.Database.Models.Entities
 {
@@ -37,7 +38,12 @@ namespace SchoolUni.Database.Models.Entities
         public Student Student { get; set; }
     }
 
-    public class Course
+    public interface IRowVersion
+    {
+        byte[] RowVersion { get; set; }
+    }
+
+    public class Course: IRowVersion
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int CourseID { get; set; }
@@ -45,5 +51,7 @@ namespace SchoolUni.Database.Models.Entities
         public int Credits { get; set; }
 
         public IQueryable<Enrollment> Enrollments { get; set; }
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
     }
 }

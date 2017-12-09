@@ -6,9 +6,9 @@ namespace CollegeUni.Services
 {
     public interface ICourseService
     {
-        Task<BrowseResponse<Course>> GetCourses(StudentBrowseRequest request);
-        Task<Course> GetCourse(int courseID);
-        Task<Course> SaveCourse(Course course, bool isInsert = false);
-        void RemoveCourse(int course);
+        Task<BrowseResponse<CourseResponseViewModel>> GetCourses(StudentBrowseRequest request);
+        Task<CourseResponseViewModel> GetCourse(int courseID);
+        Task<CourseResponseViewModel> SaveCourse(CourseRequestViewModel request, bool isInsert = false);
+        void RemoveCourse(int courseID);
     }
 }
