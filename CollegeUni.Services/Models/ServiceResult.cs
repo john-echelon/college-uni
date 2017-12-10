@@ -1,9 +1,6 @@
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace CollegeUni.Services.Models
 {
@@ -15,7 +12,7 @@ namespace CollegeUni.Services.Models
         /// </summary>
         [JsonIgnore]
         public Dictionary<string, string[]> ModelState { protected get; set; }
-        public bool HasErrors => ModelState.Any();
+        public bool HasErrors => ModelState?.Any() ?? false;
         public object Errors
         {
             get

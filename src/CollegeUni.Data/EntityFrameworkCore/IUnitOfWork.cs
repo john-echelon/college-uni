@@ -7,13 +7,12 @@ using CollegeUni.Utilities.Enumeration;
 
 namespace CollegeUni.Data.EntityFrameworkCore
 {
-    public interface IUnitOfWork
+    public interface IUnitOfWork: IDisposable
     {
         IGenericRepo<Course> CourseRepository { get; }
         IGenericRepo<Student> StudentRepository { get; }
         IGenericRepo<Enrollment> EnrollmentRepository { get; }
 
-        void Dispose();
         void Save();
         Task<int> SaveAsync();
         int Save(Action<IEnumerable<EntityEntry>> resolveConflicts, int retryCount = 3, bool userResolveConflict = false);

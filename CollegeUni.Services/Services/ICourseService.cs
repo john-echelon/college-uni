@@ -8,7 +8,8 @@ namespace CollegeUni.Services.Services
     {
         Task<ServiceResult<BrowseResponse<CourseResponse>>> GetCourses(CourseBrowseRequest request);
         Task<ServiceResult<CourseResponse>> GetCourse(int courseId);
-        Task<ServiceResult<CourseResponse>> SaveCourse(CourseRequest request, bool isInsert = false);
+        Task<ServiceResult<CourseResponse>> AddCourse(CourseRequest request);
+        Task<ServiceResult<CourseResponse>> UpdateCourse(CourseRequest request);
         void RemoveCourse(int courseID);
     }
 }

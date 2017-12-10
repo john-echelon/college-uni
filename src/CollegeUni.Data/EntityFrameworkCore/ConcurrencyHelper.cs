@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace CollegeUni.Data.EntityFrameworkCore
 {
-    public class ConcurrencyHelper
+    public static class ConcurrencyHelper
     {
         public static Action<IEnumerable<EntityEntry>> ResolveConflicts<TEntity>(TEntity entity, Dictionary<string, string[]> modelState) where TEntity : IEntity
         {

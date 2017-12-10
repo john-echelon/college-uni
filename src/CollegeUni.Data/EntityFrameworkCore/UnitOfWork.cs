@@ -8,12 +8,12 @@ using CollegeUni.Utilities.Enumeration;
 
 namespace CollegeUni.Data.EntityFrameworkCore
 {
-    public class UnitOfWork : IDisposable, IUnitOfWork
+    public class UnitOfWork : IUnitOfWork
     {
-        private AuthContext _context;
-        private IGenericRepo<Student> _studentRepository;
-        private IGenericRepo<Course> _courseRepository;
-        private IGenericRepo<Enrollment> _enrollmentRepository;
+        private readonly AuthContext _context;
+        private readonly IGenericRepo<Student> _studentRepository;
+        private readonly IGenericRepo<Course> _courseRepository;
+        private readonly IGenericRepo<Enrollment> _enrollmentRepository;
         
         public UnitOfWork(
             AuthContext authContext,
@@ -88,12 +88,9 @@ namespace CollegeUni.Data.EntityFrameworkCore
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (!this.disposed && disposing)
             {
-                if (disposing)
-                {
-                    _context.Dispose();
-                }
+                _context.Dispose();
             }
             this.disposed = true;
         }

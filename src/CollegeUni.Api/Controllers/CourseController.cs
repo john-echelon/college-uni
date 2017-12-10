@@ -67,7 +67,7 @@ namespace CollegeUni.Api.Controllers
         [ProducesResponseType(typeof(ServiceResult<CourseResponse>), 200)]
         public async Task<IActionResult> Post([FromBody]CourseRequest value)
         {
-            var result = await _courseService.SaveCourse(value, isInsert: true);
+            var result = await _courseService.AddCourse(value);
             return Ok(result);
         }
 
@@ -80,7 +80,7 @@ namespace CollegeUni.Api.Controllers
         [ProducesResponseType(typeof(ServiceResult<CourseResponse>), 200)]
         public async Task<IActionResult> Put([FromBody]CourseRequest value)
         {
-            var result = await _courseService.SaveCourse(value, isInsert: false);
+            var result = await _courseService.UpdateCourse(value);
             if (!result.HasErrors)
             {
                 return BadRequest(result);

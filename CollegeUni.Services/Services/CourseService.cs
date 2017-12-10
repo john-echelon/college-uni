@@ -39,21 +39,44 @@ namespace CollegeUni.Services.Services
             return new ServiceResult<BrowseResponse<CourseResponse>> { Data = response };
         }
 
-        public async Task<ServiceResult<CourseResponse>> GetCourse(int courseID)
+        public async Task<ServiceResult<CourseResponse>> GetCourse(int courseId)
         {
-            var response = Mapper.Map<Course, CourseResponse>(await _unitOfWork.CourseRepository.GetByIDAsync(courseID));
+            var response = Mapper.Map<Course, CourseResponse>(await _unitOfWork.CourseRepository.GetByIDAsync(courseId));
             var serviceResult = new ServiceResult<CourseResponse> { Data = response };
             return serviceResult;
         }
 
-        public async Task<ServiceResult<CourseResponse>> SaveCourse(CourseRequest request, bool isInsert = false)
+        public async Task<ServiceResult<CourseResponse>> AddCourse(CourseRequest request)
+        {
+            var courseEntity = Mapper.Map<CourseRequest, Course>(request);
+            var modelState = new Dictionary<string, string[]>();
+            _unitOfWork.CourseRepository.Insert(courseEntity);
+
+            // Handle Conflicts here
+            int result = await _unitOfWork.SaveAsync();
+
+            return await GetServiceResult(courseEntity, modelState, result);
+        }
+
+        private async Task<ServiceResult<CourseResponse>> GetServiceResult(Course courseEntity, Dictionary<string, string[]> modelState, int result)
+        {
+            if (result > 0)
+            {
+                return await GetCourse(courseEntity.Id);
+            }
+            else
+            {
+                CourseResponse response = Mapper.Map<Course, CourseResponse>(courseEntity);
+                return new ServiceResult<CourseResponse> { Message = "There were errors saving Course.", ModelState = modelState, Data = response };
+            }
+        }
+
+        public async Task<ServiceResult<CourseResponse>> UpdateCourse(CourseRequest request)
         {
             var courseEntity = Mapper.Map<CourseRequest, Course>(request);
             var modelState = new Dictionary<string, string[]>();
 
-            if (isInsert)
-                _unitOfWork.CourseRepository.Insert(courseEntity);
-            else _unitOfWork.CourseRepository.Update(courseEntity);
+            _unitOfWork.CourseRepository.Update(courseEntity);
 
             // Handle Conflicts here
             int result;
@@ -69,17 +92,7 @@ namespace CollegeUni.Services.Services
                     refreshMode = RefreshConflict.StoreWins;
                 result = _unitOfWork.SaveSingleEntry(refreshMode);
             }
-            CourseResponse response;
-            if (result > 0)
-            {
-                response = Mapper.Map<Course, CourseResponse>(await _unitOfWork.CourseRepository.GetByIDAsync(courseEntity.Id));
-            }
-            else
-            {
-                response = Mapper.Map<Course, CourseResponse>(courseEntity);
-            }
-            var serviceResult = new ServiceResult<CourseResponse> { Message = "There were errors saving Course.", ModelState = modelState, Data = response };
-            return serviceResult;
+            return await GetServiceResult(courseEntity, modelState, result);
         }
 
         public void RemoveCourse(int courseID)
