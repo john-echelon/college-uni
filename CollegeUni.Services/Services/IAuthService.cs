@@ -1,5 +1,5 @@
-using CollegeUni.Api.Managers;
-using CollegeUni.Api.Models;
+using CollegeUni.Services.Managers;
+using CollegeUni.Services.Models;
 using Microsoft.AspNetCore.Identity;
 using CollegeUni.Data.Entities;
 using System;
@@ -8,13 +8,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CollegeUni.Api.Services
+namespace CollegeUni.Services.Services
 {
     public interface IAuthService
     {
-        Task<AuthServiceResult> ValidateUser(LoginViewModel model);
-        Task<TokenResponseViewModel> GetJwtSecurityToken(AuthServiceResult serviceResult);
-        Task<AuthServiceResult> RegisterUser(RegisterViewModel model);
+        Task<AuthServiceResult> ValidateUser(LoginRequest model);
+        Task<TokenResponse> GetJwtSecurityToken(AuthServiceResult serviceResult);
+        Task<AuthServiceResult> RegisterUser(RegisterRequest model);
     }
 
     public class AuthServiceResult

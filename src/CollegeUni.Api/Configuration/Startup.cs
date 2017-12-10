@@ -1,10 +1,10 @@
 using AutoMapper;
-using CollegeUni.Api.Filters;
-using CollegeUni.Api.Managers;
-using CollegeUni.Api.Models;
-using CollegeUni.Api.Services;
 using CollegeUni.Data.Entities;
 using CollegeUni.Data.EntityFrameworkCore;
+using CollegeUni.Filters;
+using CollegeUni.Services.Managers;
+using CollegeUni.Services.Models;
+using CollegeUni.Services.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -139,7 +139,7 @@ namespace CollegeUni.Api.Configuration
                 c.OperationFilter<AuthorizationHeaderParameterOperationFilter>();
             });
             services.AddMvc(options => {
-                options.Filters.Add(typeof(ApiExceptionFilter)); // by type
+                options.Filters.Add(typeof(ApiExceptionFilterAttribute)); // by type
             });
             #endregion
 
@@ -162,8 +162,8 @@ namespace CollegeUni.Api.Configuration
 
             #region AutoMapper
             Mapper.Initialize(cfg => {
-                cfg.CreateMap<Course, CourseRequestViewModel>().ReverseMap();
-                cfg.CreateMap<Course, CourseResponseViewModel>().ReverseMap();
+                cfg.CreateMap<Course, CourseRequest>().ReverseMap();
+                cfg.CreateMap<Course, CourseResponse>().ReverseMap();
             });
             #endregion
 

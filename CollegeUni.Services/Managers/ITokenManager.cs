@@ -5,7 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CollegeUni.Api.Managers
+namespace CollegeUni.Services.Managers
 {
     public interface ITokenManager
     {

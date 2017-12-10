@@ -1,11 +1,11 @@
-using CollegeUni.Api.Managers;
-using CollegeUni.Api.Models;
+using CollegeUni.Services.Managers;
+using CollegeUni.Services.Models;
 using CollegeUni.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 
-namespace CollegeUni.Api.Services
+namespace CollegeUni.Services.Services
 {
     public class AuthService : IAuthService
     {
@@ -23,20 +23,20 @@ namespace CollegeUni.Api.Services
             _tokenManager = tokenManager;
         }
       
-        public async Task<TokenResponseViewModel> GetJwtSecurityToken(AuthServiceResult serviceResult)
+        public async Task<TokenResponse> GetJwtSecurityToken(AuthServiceResult serviceResult)
         {
             if (serviceResult.UserSignIn.Succeeded && serviceResult.User != null)
             {
                 var securityToken = await _tokenManager.GetJwtSecurityToken(serviceResult.User);
-                return new TokenResponseViewModel
+                return new TokenResponse
                 {
-                    token = new JwtSecurityTokenHandler().WriteToken(securityToken),
-                    expiration = securityToken.ValidTo
+                    Token = new JwtSecurityTokenHandler().WriteToken(securityToken),
+                    Expiration = securityToken.ValidTo
                 };
             }
             return null;
         }
-        public async Task<AuthServiceResult> ValidateUser(LoginViewModel model)
+        public async Task<AuthServiceResult> ValidateUser(LoginRequest model)
         {
             var user = await _userManager.FindByNameAsync(model.Email);
 
@@ -48,7 +48,7 @@ namespace CollegeUni.Api.Services
                 UserSignIn = result
             };
         }
-        public async Task<AuthServiceResult> RegisterUser(RegisterViewModel model)
+        public async Task<AuthServiceResult> RegisterUser(RegisterRequest model)
         {
             var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
             var identityResult = await _userManager.CreateAsync(user, model.Password);

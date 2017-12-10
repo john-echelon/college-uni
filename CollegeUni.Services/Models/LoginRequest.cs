@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CollegeUni.Api.Models
+namespace CollegeUni.Services.Models
 {
-    public class LoginViewModel
+    public class LoginRequest
     {
         [Required]
         [EmailAddress]
@@ -16,7 +16,6 @@ namespace CollegeUni.Api.Models
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
-        [Display(Name = "Remember me?")]
         public bool RememberMe { get; set; }
     }
 }

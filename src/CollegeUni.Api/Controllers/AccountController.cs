@@ -1,12 +1,8 @@
-using CollegeUni.Api.Models;
-using CollegeUni.Api.Services;
+using CollegeUni.Services.Models;
+using CollegeUni.Services.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using CollegeUni.Data.Entities;
-using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 
 namespace CollegeUni.Api.Controllers
@@ -24,7 +20,7 @@ namespace CollegeUni.Api.Controllers
         }
 
         [HttpPost("token")]
-        public async Task<IActionResult> Token([FromBody] LoginViewModel model)
+        public async Task<IActionResult> Token([FromBody] LoginRequest model)
         {
             if (!ModelState.IsValid)
             {
@@ -48,7 +44,7 @@ namespace CollegeUni.Api.Controllers
         }
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<IActionResult> Register([FromBody]RegisterViewModel model)
+        public async Task<IActionResult> Register([FromBody]RegisterRequest model)
         {
             if (!ModelState.IsValid)
             {

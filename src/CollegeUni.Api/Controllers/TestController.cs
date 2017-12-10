@@ -1,10 +1,10 @@
-using CollegeUni.Api.Filters;
-using CollegeUni.Api.Models;
+using CollegeUni.Services.Models;
+using CollegeUni.Utilities.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-namespace CollegeUni.Api.Controllers
+namespace CollegeUni.Api.Filters
 {
     [AllowAnonymous]
     [Produces("application/json")]
@@ -36,7 +36,7 @@ namespace CollegeUni.Api.Controllers
         {
             // Demonstrates expection handling here. See also ApiExceptionFilter
             ModelState.AddModelError("Login", "Token request has failed.");
-            var result = new ServiceResult<LoginViewModel> { Message = "Failed to generate token.", ModelState = ModelState };
+            var result = new ServiceResult<LoginRequest> { Message = "Failed to generate token.", ModelState = ModelState.ToStringDictionary() };
             return BadRequest(result);
         }
         [HttpGet("notfound")]
@@ -48,14 +48,8 @@ namespace CollegeUni.Api.Controllers
         public IActionResult ThrowExceptionAction(int statusCode = 500)
         {
             ModelState.AddModelError("Login", "Token request has failed.");
-            throw new CustomException("Failed to generate token.", ModelState, statusCode);
+            throw new ApiResponseException("Failed to generate token.", ModelState.ToStringDictionary(), statusCode);
             // Any uncaught exception is equivalent to the general InternalServerError: 500.
-        }
-        [HttpGet("badgateway")]
-        public IActionResult BadGateway()
-        {
-            // Status Code 502.3
-            return BadGateway();
         }
     }
 }

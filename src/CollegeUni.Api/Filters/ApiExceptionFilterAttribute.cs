@@ -1,30 +1,28 @@
 using CollegeUni.Api.Filters;
-using CollegeUni.Api.Models;
+using CollegeUni.Services.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace CollegeUni.Api.Filters
+namespace CollegeUni.Filters
 {
-    public class ApiExceptionFilter : ExceptionFilterAttribute
+    public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
     {
         private readonly ILogger _logger;
-        public ApiExceptionFilter(ILogger<ApiExceptionFilter> logger)
+        public ApiExceptionFilterAttribute(ILogger<ApiExceptionFilterAttribute> logger)
         {
             _logger = logger;
         }
         public override void OnException(ExceptionContext context)
         {
-            if (context.Exception is CustomException)
+            if (context.Exception is ApiResponseException)
             {
-                var customEx = context.Exception as CustomException;
-                _logger.LogError(3, parseException(customEx));
+                var customEx = context.Exception as ApiResponseException;
+                _logger.LogError(3, ParseException(customEx));
+                _logger.LogError(customEx, "Logged Custom Exception");
+
                 // Demonstrates an unhandled exception as an http response.
-                if(!context.ExceptionHandled && customEx.StatusCode != 500)
+                if (!context.ExceptionHandled && customEx.StatusCode != 500)
                 {
                     var serviceResult = new ServiceResult
                     {
@@ -36,9 +34,9 @@ namespace CollegeUni.Api.Filters
             }
         }
 
-        private string parseException(CustomException ex)
+        private string ParseException(ApiResponseException ex)
         {
-            return string.Format("Message: {0}\nSource: {1}\nStack Track: {2}\nStatus Code: {3}\nModel State: {4}",
+            return string.Format("\nMessage: {0}\nSource: {1}\nStack Trace: {2}\nStatus Code: {3}\nModel State: {4}",
                 ex.Message, ex.Source, ex.StackTrace, ex.StatusCode, ex.ModelState);
         }
     }

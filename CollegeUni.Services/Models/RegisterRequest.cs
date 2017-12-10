@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CollegeUni.Api.Models
+namespace CollegeUni.Services.Models
 {
-    public class RegisterViewModel
+    public class RegisterRequest
     {
         [Required]
         [EmailAddress]

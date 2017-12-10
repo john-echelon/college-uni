@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Linq;
 
-namespace CollegeUni.Api.Managers
+namespace CollegeUni.Services.Managers
 {
     public class TokenManager : ITokenManager
     {

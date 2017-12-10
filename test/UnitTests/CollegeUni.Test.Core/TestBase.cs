@@ -5,10 +5,7 @@ namespace CollegeUni.Api.Test.Core
 {
     public abstract class TestBase : IDisposable
     {
-        protected TestBase()
-        {
-            TestSetup();
-        }
+        protected TestBase() => TestSetup();
 
         public void Dispose()
         {
