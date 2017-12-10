@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.IdentityModel.Tokens.Jwt;
-using CollegeUni.Api.Models;
-using Microsoft.AspNetCore.Identity;
-using CollegeUni.Data.Models.Entities;
 using CollegeUni.Api.Managers;
+using CollegeUni.Api.Models;
+using CollegeUni.Data.Entities;
+using Microsoft.AspNetCore.Identity;
+using System.IdentityModel.Tokens.Jwt;
+using System.Threading.Tasks;
 
 namespace CollegeUni.Api.Services
 {

@@ -1,10 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace CollegeUni.Data
+namespace CollegeUni.Data.EntityFrameworkCore
 {
     public interface IGenericRepo<TEntity> where TEntity : class
     {

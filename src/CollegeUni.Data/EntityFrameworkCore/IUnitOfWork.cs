@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using CollegeUni.Data.Models.Entities;
+using CollegeUni.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CollegeUni.Utilities.Enumeration;
 
-namespace CollegeUni.Data
+namespace CollegeUni.Data.EntityFrameworkCore
 {
     public interface IUnitOfWork
     {

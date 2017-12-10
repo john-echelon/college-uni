@@ -1,4 +1,4 @@
-using CollegeUni.Data.Models.Entities;
+using CollegeUni.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;

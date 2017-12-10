@@ -1,4 +1,5 @@
 using CollegeUni.Data;
+using CollegeUni.Data.EntityFrameworkCore;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;

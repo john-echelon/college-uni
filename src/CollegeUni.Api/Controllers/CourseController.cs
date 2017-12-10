@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using CollegeUni.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using CollegeUni.Api.Models;
-using CollegeUni.Data.Models.Entities;
+using CollegeUni.Data.Entities;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -36,11 +36,11 @@ namespace CollegeUni.Api.Controllers
         {
             var result = await _courseService.GetCourses(
                 new StudentBrowseRequest {
-                    StudentID = studentID,
+                    StudentId = studentID,
                     PageInfo = new PageData
                     {
-                        offset = offset,
-                        limit = limit
+                        Offset = offset,
+                        Limit = limit
                     }
                 });
             return Ok(result);
@@ -83,9 +83,9 @@ namespace CollegeUni.Api.Controllers
         public async Task<IActionResult> Put([FromBody]CourseRequestViewModel value)
         {
             var result = await _courseService.SaveCourse(value, isInsert:false);
-            if (result.ModelState.IsValid)
-                return Ok(result);
-            else return BadRequest(result.ModelState);
+            if (!result.ModelState.Any())
+                return BadRequest(result);
+            return Ok(result);
         }
 
         // DELETE api/values/5

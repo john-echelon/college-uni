@@ -1,18 +1,16 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace CollegeUni.Data
+namespace CollegeUni.Api.Utilities.Extensions
 {
-    public class Paginator
+    public static class Paginator
     {
-        public static async Task<PaginatedData<T>> GetPagedDataAsync<T>(IQueryable<T> query, int offset, int limit)
+        public static async Task<PaginatedResult<T>> ToPageResultAsync<T>(this IQueryable<T> query, int offset, int limit)
         {
-            var data = new PaginatedData<T> { TotalResults = query.Count() };
+            var data = new PaginatedResult<T> { TotalResults = query.Count() };
             if (limit > 0)
             {
                 data.Items = await query.Skip(offset).Take(limit).ToListAsync();
@@ -24,18 +22,18 @@ namespace CollegeUni.Data
             return data;
         }
 
-        public static PaginatedData<T> GetPagedData<T>(IQueryable<T> query, int offset, int limit)
+        public static PaginatedResult<T> ToPageResult<T>(this IQueryable<T> query, int offset, int limit)
         {
-            var data = new PaginatedData<T>
+            var data = new PaginatedResult<T>
             {
                 TotalResults = query.Count(),
                 Items = limit > 0 ? query.Skip(offset).Take(limit).ToList() : query.ToList()
             };
             return data;
         }
-        public static async Task<PaginatedData<U>> GetPagedDataAsync<T, U>(IQueryable<T> query, int offset, int limit)
+        public static async Task<PaginatedResult<U>> ToPageResultAsync<T, U>(this IQueryable<T> query, int offset, int limit)
         {
-            var data = new PaginatedData<U> { TotalResults = query.Count() };
+            var data = new PaginatedResult<U> { TotalResults = query.Count() };
             if (limit > 0)
             {
                 data.Items = Mapper.Map<List<T>, List<U>>(await query.Skip(offset).Take(limit).ToListAsync());
@@ -47,9 +45,9 @@ namespace CollegeUni.Data
             return data;
         }
 
-        public static PaginatedData<U> GetPagedData<T, U>(IQueryable<T> query, int offset, int limit)
+        public static PaginatedResult<U> ToPageResult<T, U>(this IQueryable<T> query, int offset, int limit)
         {
-            var data = new PaginatedData<U>
+            var data = new PaginatedResult<U>
             {
                 TotalResults = query.Count(),
                 Items = Mapper.Map<List<T>, List<U>>(limit > 0 ? query.Skip(offset).Take(limit).ToList() : query.ToList())
@@ -58,10 +56,9 @@ namespace CollegeUni.Data
         }
     }
 
-    public class PaginatedData<T>
+    public class PaginatedResult<T>
     {
         public List<T> Items { get; set; }
         public int TotalResults { get; set; }
-
     }
 }

@@ -1,24 +1,12 @@
+using CollegeUni.Utilities.Enumeration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Rest.TransientFaultHandling;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace CollegeUni.Data
+namespace CollegeUni.Data.EntityFrameworkCore
 {
-    public enum RefreshConflict
-    {
-        StoreWins = 0,
-
-        ClientWins = 1,
-
-        MergeClientAndStore =2,
-    }
-
     public static partial class DbContextExtensions
     {
         public static int SaveChanges(
@@ -104,7 +92,6 @@ namespace CollegeUni.Data
                             var props = databaseValues.Properties // Navigation properties are not included.
                                 .Where(property => !object.Equals(originalValues[property.Name], databaseValues[property.Name]));
 
-                            //(props as List<IProperty>).ForEach(property => tracking.Property(property.Name).IsModified = false);
                             foreach(var property in props) { 
                                 if(!object.Equals(originalValues[property.Name], databaseValues[property.Name]))
                                 {

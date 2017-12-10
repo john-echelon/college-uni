@@ -1,10 +1,10 @@
 using AutoMapper;
 using CollegeUni.Api.Models;
-using CollegeUni.Api.Utilities;
+using CollegeUni.Api.Utilities.Extensions;
+using CollegeUni.Data.Entities;
+using CollegeUni.Data.EntityFrameworkCore;
+using CollegeUni.Utilities.Enumeration;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using CollegeUni.Data;
-using CollegeUni.Data.Models.Entities;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,11 +22,11 @@ namespace CollegeUni.Api.Services
         public async Task<BrowseResponse<CourseResponseViewModel>> GetCourses(StudentBrowseRequest request)
         {
             IQueryable<Course> query;
-            var studentID = request.StudentID.GetValueOrDefault();
-            if (request.StudentID.HasValue)
+            var studentID = request.StudentId.GetValueOrDefault();
+            if (request.StudentId.HasValue)
             {
                 query = _unitOfWork.EnrollmentRepository.
-                    Get(e => e.StudentID == request.StudentID.Value).
+                    Get(e => e.StudentId == request.StudentId.Value).
                     Select(e => e.Course);
             }
             else
@@ -35,7 +35,7 @@ namespace CollegeUni.Api.Services
             var response = new BrowseResponse<CourseResponseViewModel>
             {
                 PageInfo = request.PageInfo,
-                Data = await Paginator.GetPagedDataAsync<Course, CourseResponseViewModel>(query, request.PageInfo.offset, request.PageInfo.limit)
+                Data = await query.ToPageResultAsync<Course, CourseResponseViewModel>(request.PageInfo.Offset, request.PageInfo.Limit)
             };
             return response;
         } 
@@ -48,7 +48,7 @@ namespace CollegeUni.Api.Services
         public async Task<CourseResponseViewModel> SaveCourse(CourseRequestViewModel request, bool isInsert = false)
         {
             var courseEntity = Mapper.Map<CourseRequestViewModel, Course>(request);
-            var modelState = new ModelStateDictionary();
+            var modelState = new Dictionary<string, string[]>();
 
             if(isInsert)
                 _unitOfWork.CourseRepository.Insert(courseEntity);
@@ -64,14 +64,14 @@ namespace CollegeUni.Api.Services
             else
             {
                 RefreshConflict refreshMode = (RefreshConflict)request.ConflictStrategy;
-                if(!EnumHelper.IsFlagDefined(refreshMode))
+                if(!EnumExtensions.IsFlagDefined(refreshMode))
                     refreshMode = RefreshConflict.StoreWins;
                 result = _unitOfWork.SaveSingleEntry(refreshMode);
             }
 
             if (result >0)
             {
-                return await Task.FromResult(Mapper.Map<Course,CourseResponseViewModel>(await _unitOfWork.CourseRepository.GetByIDAsync(courseEntity.CourseID)));
+                return await Task.FromResult(Mapper.Map<Course,CourseResponseViewModel>(await _unitOfWork.CourseRepository.GetByIDAsync(courseEntity.Id)));
             }
             else
             {

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using Xunit;
@@ -111,7 +110,7 @@ namespace CollegeUni.Api.Api.Test
 
             authServiceResult = new AuthServiceResult
             {
-                User = new CollegeUni.Data.Models.Entities.ApplicationUser
+                User = new CollegeUni.Data.Entities.ApplicationUser
                 {
                     Email = "marilyn443@example.com"
                 },
@@ -150,7 +149,7 @@ namespace CollegeUni.Api.Api.Test
             // Setup RegisterUser
             var authServiceResult = new AuthServiceResult
             {
-                User = new CollegeUni.Data.Models.Entities.ApplicationUser
+                User = new CollegeUni.Data.Entities.ApplicationUser
                 {
                     Email = "marilyn443@example.com"
                 },

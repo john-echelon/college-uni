@@ -4,16 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CollegeUni.Utilities.Enumeration;
 
 namespace CollegeUni.Api.Models
 {
-    public enum ResolveStrategy
-    {
-        StoreWins = RefreshConflict.StoreWins,
-        ClientWins = RefreshConflict.ClientWins,
-        ShowUnresolvedConflicts = 3,
-    }
-
     public class CourseRequestViewModel
     {
         public int CourseID { get; set; }
@@ -24,6 +18,6 @@ namespace CollegeUni.Api.Models
     }
     public class CourseResponseViewModel: CourseRequestViewModel
     {
-        public ModelStateDictionary ModelState { get; set; } = new ModelStateDictionary();
+        public Dictionary<string, string[]> ModelState { get; set; } = new Dictionary<string, string[]>();
     }
 }

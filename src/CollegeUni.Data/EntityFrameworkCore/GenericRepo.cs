@@ -1,12 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace CollegeUni.Data
+namespace CollegeUni.Data.EntityFrameworkCore
 {
     public class GenericRepo<TEntity> : IGenericRepo<TEntity> where TEntity : class
     {
