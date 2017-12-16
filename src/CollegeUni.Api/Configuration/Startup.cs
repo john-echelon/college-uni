@@ -15,9 +15,12 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.IdentityModel.Tokens;
+using NLog.Extensions.Logging;
+using NLog.Web;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
@@ -170,7 +173,7 @@ namespace CollegeUni.Api.Configuration
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
@@ -186,16 +189,33 @@ namespace CollegeUni.Api.Configuration
             app.UseSwagger();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
-            app.UseSwaggerUI(c =>
+            var endpoint = Configuration["Swagger:Endpoint"];
+            if (!string.IsNullOrEmpty(endpoint))
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-            });
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint(endpoint, "Trident API v1");
+                });
+            }
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetRequiredService<AuthContext>();
                 context.Database.Migrate();
             }
+            ConfigureNLog(app, env, loggerFactory);
+            app.UseExceptionHandler(AppMiddlewareExceptionFilter.JsonHandler());
             app.UseMvc();
+        }
+
+        protected virtual void ConfigureNLog(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        {
+            //add NLog to ASP.NET Core
+            env.ConfigureNLog("nlog.config");
+            //add NLog.Web
+            loggerFactory.AddNLog();
+
+            loggerFactory.AddDebug(LogLevel.Trace);
+            app.AddNLogWeb();
         }
 
     }
