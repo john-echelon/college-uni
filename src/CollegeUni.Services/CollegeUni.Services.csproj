@@ -9,8 +9,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\CollegeUni.Data\CollegeUni.Data.csproj" />
-    <ProjectReference Include="..\src\CollegeUni.Utilities\CollegeUni.Utilities.csproj" />
+    <ProjectReference Include="..\CollegeUni.Data\CollegeUni.Data.csproj" />
+    <ProjectReference Include="..\CollegeUni.Utilities\CollegeUni.Utilities.csproj" />
   </ItemGroup>
 
 </Project>
