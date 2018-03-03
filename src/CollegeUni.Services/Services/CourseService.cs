@@ -41,7 +41,7 @@ namespace CollegeUni.Services.Services
 
         public async Task<ServiceResult<CourseResponse>> GetCourse(int courseId)
         {
-            var response = Mapper.Map<Course, CourseResponse>(await _unitOfWork.CourseRepository.GetByIDAsync(courseId));
+            var response = Mapper.Map<Course, CourseResponse>(await _unitOfWork.CourseRepository.GetByIdAsync(courseId));
             var serviceResult = new ServiceResult<CourseResponse> { Data = response };
             return serviceResult;
         }
@@ -83,7 +83,7 @@ namespace CollegeUni.Services.Services
             if (request.ConflictStrategy == ResolveStrategy.ShowUnresolvedConflicts)
             {
                 var resolveConflicts = ConcurrencyHelper.ResolveConflicts(courseEntity, modelState);
-                result = _unitOfWork.Save(resolveConflicts, userResolveConflict: true);
+                result = await _unitOfWork.SaveAsync(resolveConflicts, userResolveConflict: true);
             }
             else
             {

@@ -95,38 +95,6 @@ namespace CollegeUni.Api.Configuration
                 };
             });
 
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.Events =
-                    new CookieAuthenticationEvents
-                    {
-                        OnRedirectToLogin = ctx =>
-                        {
-                            // If we were redirect to login from api..
-                            if (ctx.Request.Path.StartsWithSegments("/api") && ctx.Response.StatusCode == 200)
-                            {
-                                ctx.Response.StatusCode = 401;
-                                return Task.FromResult<object>(null);
-                            }
-
-                            ctx.Response.Redirect(ctx.RedirectUri);
-                            return Task.FromResult<object>(null);
-                        },
-                        OnRedirectToAccessDenied = ctx =>
-                        {
-                            // If access is denied from api...
-                            if (ctx.Request.Path.StartsWithSegments("/api") && ctx.Response.StatusCode == 200)
-                            {
-                                ctx.Response.StatusCode = 403;
-                                return Task.FromResult<object>(null);
-                            }
-
-                            ctx.Response.Redirect(ctx.RedirectUri);
-                            return Task.FromResult<object>(null);
-                        }
-                    };
-            });
-
             // Register the Swagger generator, defining one or more Swagger documents
             services.AddSwaggerGen(c =>
             {
@@ -178,6 +146,11 @@ namespace CollegeUni.Api.Configuration
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+                {
+                    var context = serviceScope.ServiceProvider.GetRequiredService<AuthContext>();
+                    context.Database.Migrate();
+                }
             }
 
             // Shows UseCors with CorsPolicyBuilder.
@@ -197,11 +170,6 @@ namespace CollegeUni.Api.Configuration
                     c.SwaggerEndpoint(endpoint, "Trident API v1");
                 });
             }
-            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetRequiredService<AuthContext>();
-                context.Database.Migrate();
-            }
             ConfigureNLog(app, env, loggerFactory);
             app.UseExceptionHandler(AppMiddlewareExceptionFilter.JsonHandler());
             app.UseMvc();
@@ -213,8 +181,6 @@ namespace CollegeUni.Api.Configuration
             env.ConfigureNLog("nlog.config");
             //add NLog.Web
             loggerFactory.AddNLog();
-
-            loggerFactory.AddDebug(LogLevel.Trace);
             app.AddNLogWeb();
         }
 

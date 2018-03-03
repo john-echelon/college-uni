@@ -4,12 +4,13 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CollegeUni.Data.EntityFrameworkCore
 {
     public static partial class DbContextExtensions
     {
-        public static int SaveChanges(
+        public static async Task<int> SaveChangesAsync(
          this DbContext context, Action<IEnumerable<EntityEntry>> resolveConflicts, int retryCount = 3, bool userResolveConflict = false)
         {
             bool ignoreSave = false;
@@ -22,7 +23,7 @@ namespace CollegeUni.Data.EntityFrameworkCore
             {
                 try
                 {
-                    return context.SaveChanges();
+                    return await context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException exception) when (retry < retryCount)
                 {
@@ -36,9 +37,8 @@ namespace CollegeUni.Data.EntityFrameworkCore
             }
             if (ignoreSave)
                 return 0;
-            return context.SaveChanges();
+            return await context.SaveChangesAsync();
         }
-
         public static EntityEntry Refresh(this EntityEntry tracking, RefreshConflict refreshMode)
         {
             switch (refreshMode)

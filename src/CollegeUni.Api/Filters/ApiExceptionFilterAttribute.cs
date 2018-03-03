@@ -36,10 +36,10 @@ namespace CollegeUni.Filters
                 {
                     MappedDiagnosticsContext.Set("RequestContext", new
                     {
-                        Scheme = request.Scheme,
+                        request.Scheme,
                         Host = request.Host.Value,
                         Path = request.Path.Value,
-                        QueryString = request.QueryString
+                        request.QueryString
                     });
                 }
             }

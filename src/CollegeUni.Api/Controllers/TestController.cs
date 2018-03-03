@@ -3,6 +3,7 @@ using CollegeUni.Utilities.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+#if DEBUG
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 namespace CollegeUni.Api.Filters
 {
@@ -54,3 +55,4 @@ namespace CollegeUni.Api.Filters
     }
 }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+#endif

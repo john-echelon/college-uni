@@ -1,3 +1,4 @@
+using CollegeUni.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CollegeUni.Data.EntityFrameworkCore
 {
-    public class GenericRepo<TEntity> : IGenericRepo<TEntity> where TEntity : class
+    public class GenericRepo<TEntity> : IGenericRepo<TEntity> where TEntity : BaseEntity
     {
         internal AuthContext context;
         internal DbSet<TEntity> dbSet;
@@ -45,15 +46,26 @@ namespace CollegeUni.Data.EntityFrameworkCore
             }
         }
 
-        public virtual TEntity GetByID(object id)
+        public virtual TEntity GetById(object id)
         {
             return dbSet.Find(id);
         }
 
-        public virtual Task<TEntity> GetByIDAsync(object id)
+        public virtual Task<TEntity> GetByIdAsync(object id)
         {
             return dbSet.FindAsync(id);
         }
+
+        public virtual TEntity GetById(object id, string includeProperties)
+        {
+            return GetByIdAsync(id, includeProperties).GetAwaiter().GetResult();
+        }
+
+        public Task<TEntity> GetByIdAsync(object id, string includeProperties)
+        {
+            return Get(null, null, includeProperties).SingleOrDefaultAsync(e => e.Id.Equals(id));
+        }
+
         public virtual void Insert(TEntity entity)
         {
             dbSet.Add(entity);
