@@ -54,6 +54,34 @@ namespace CollegeUni.Api.Utilities.Extensions
             };
             return data;
         }
+
+        public static Task<PaginatedResult<T>> ToPageResult<T>(this IEnumerable<T> query, int offset, int limit)
+        {
+            var data = new PaginatedResult<T> { TotalResults = query.Count() };
+            if (limit > 0)
+            {
+                data.Items = query.Skip(offset).Take(limit).ToList();
+            }
+            else
+            {
+                data.Items = query.ToList();
+            }
+            return Task.FromResult(data);
+        }
+
+        public static Task<PaginatedResult<U>> ToPageResult<T, U>(this IEnumerable<T> query, int offset, int limit)
+        {
+            var data = new PaginatedResult<U> { TotalResults = query.Count() };
+            if (limit > 0)
+            {
+                data.Items = Mapper.Map<List<T>, List<U>>(query.Skip(offset).Take(limit).ToList());
+            }
+            else
+            {
+                data.Items = Mapper.Map<List<T>, List<U>>(query.ToList());
+            }
+            return Task.FromResult(data);
+        }
     }
 
     public class PaginatedResult<T>

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace CollegeUni.Api.Filters
+namespace CollegeUni.Utilities.Extensions
 {
     [Serializable]
     // Important: This attribute is NOT inherited from Exception, and MUST be specified 

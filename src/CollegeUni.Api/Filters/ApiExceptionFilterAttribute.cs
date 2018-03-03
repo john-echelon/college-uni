@@ -1,14 +1,16 @@
 using CollegeUni.Api.Filters;
 using CollegeUni.Services.Models;
+using CollegeUni.Utilities.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
+using NLog;
 
 namespace CollegeUni.Filters
 {
     public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
     {
-        private readonly ILogger _logger;
+        private readonly Microsoft.Extensions.Logging.ILogger _logger;
         public ApiExceptionFilterAttribute(ILogger<ApiExceptionFilterAttribute> logger)
         {
             _logger = logger;
@@ -18,11 +20,9 @@ namespace CollegeUni.Filters
             if (context.Exception is ApiResponseException)
             {
                 var customEx = context.Exception as ApiResponseException;
-                _logger.LogError(3, ParseException(customEx));
-                _logger.LogError(customEx, "Logged Custom Exception");
 
                 // Demonstrates an unhandled exception as an http response.
-                if (!context.ExceptionHandled && customEx.StatusCode != 500)
+                if (!context.ExceptionHandled && customEx.StatusCode < 500)
                 {
                     var serviceResult = new ServiceResult
                     {
@@ -31,13 +31,19 @@ namespace CollegeUni.Filters
                     };
                     context.Result = new ObjectResult(serviceResult) { StatusCode = customEx.StatusCode };
                 }
+                var request = context?.HttpContext?.Request;
+                if (request != null)
+                {
+                    MappedDiagnosticsContext.Set("RequestContext", new
+                    {
+                        request.Scheme,
+                        Host = request.Host.Value,
+                        Path = request.Path.Value,
+                        request.QueryString
+                    });
+                }
             }
-        }
-
-        private string ParseException(ApiResponseException ex)
-        {
-            return string.Format("\nMessage: {0}\nSource: {1}\nStack Trace: {2}\nStatus Code: {3}\nModel State: {4}",
-                ex.Message, ex.Source, ex.StackTrace, ex.StatusCode, ex.ModelState);
+            _logger.LogError("Uncaught exception in api", context.Exception);
         }
     }
 }
