@@ -10,8 +10,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +23,9 @@ using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.IdentityModel.Tokens;
 using NLog.Extensions.Logging;
 using NLog.Web;
+using SimpleInjector;
+using SimpleInjector.Integration.AspNetCore.Mvc;
+using SimpleInjector.Lifestyles;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
@@ -34,6 +39,7 @@ namespace CollegeUni.Api.Configuration
 {
     public class Startup
     {
+        private Container _container = new Container();
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -115,15 +121,9 @@ namespace CollegeUni.Api.Configuration
             #endregion
 
             #region Add application services
-            services.AddTransient<ITokenManager, TokenManager>();
-            services.AddTransient<IAuthService, AuthService>();
-            services.AddTransient<ICourseService, CourseService>();
-            services.AddTransient<IUnitOfWork, UnitOfWork>();
-            services.AddTransient<IGenericRepo<Course>, GenericRepo<Course>>();
-            services.AddTransient<IGenericRepo<Student>, GenericRepo<Student>>();
-            services.AddTransient<IGenericRepo<Enrollment>, GenericRepo<Enrollment>>();
+            IntegrateSimpleInjector(services);
             #endregion
-            
+
             #region Add Cors Policies here
             services.AddCors(
                 options => options.AddPolicy("AllowAllOrigins",
@@ -138,6 +138,19 @@ namespace CollegeUni.Api.Configuration
             });
             #endregion
 
+        }
+
+        private void IntegrateSimpleInjector(IServiceCollection services)
+        {
+            _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddSingleton<IControllerActivator>(
+                new SimpleInjectorControllerActivator(_container));
+
+            services.EnableSimpleInjectorCrossWiring(_container);
+            services.UseSimpleInjectorAspNetRequestScoping(_container);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -172,9 +185,43 @@ namespace CollegeUni.Api.Configuration
             }
             ConfigureNLog(app, env, loggerFactory);
             app.UseExceptionHandler(AppMiddlewareExceptionFilter.JsonHandler());
+
+            InitializeContainer(app);
+
+
+            _container.Verify();
             app.UseMvc();
         }
+ 
+        private void InitializeContainer(IApplicationBuilder app)
+        {
+            // Add application presentation components:
+            _container.RegisterMvcControllers(app);
+            _container.RegisterMvcViewComponents(app);
 
+            // Add application services. For instance:
+            _container.Register<IAuthService, AuthService>(Lifestyle.Transient);
+            _container.Register<ITokenManager, TokenManager>(Lifestyle.Transient);
+            _container.Register<ICourseService, CourseService>(Lifestyle.Transient);
+            _container.Register<IUnitOfWork, UnitOfWork>(Lifestyle.Scoped);
+            _container.Register(typeof(IGenericRepo<>), typeof(GenericRepo<>), Lifestyle.Scoped);
+            // Go look in all assemblies and register all implementations of ICommandHandler<T> by their closed interface:
+            _container.Register(typeof(ICommandHandler<>), AppDomain.CurrentDomain.GetAssemblies());
+            // Decorate each returned ICommandHandler<T> object with a CommandHandlerDecorator<T>.
+            _container.RegisterDecorator(typeof(ICommandHandler<>), typeof(ScaleCommandHandlerDecorator<>));
+            _container.RegisterDecorator(typeof(ICommandHandler<>), typeof(AugmentedCommandHandlerDecorator<>));
+
+
+            // Cross-wire ASP.NET services (if any). For instance:
+            _container.CrossWire<ILoggerFactory>(app);
+            _container.CrossWire<UserManager<ApplicationUser>>(app);
+            _container.CrossWire<SignInManager<ApplicationUser>>(app);
+            _container.CrossWire<IConfiguration>(app);
+            _container.CrossWire<AuthContext>(app);
+
+            // NOTE: Do prevent cross-wired instances as much as possible.
+            // See: https://simpleinjector.org/blog/2016/07/
+        }
         protected virtual void ConfigureNLog(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             //add NLog to ASP.NET Core
