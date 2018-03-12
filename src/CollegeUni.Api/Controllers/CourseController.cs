@@ -25,16 +25,18 @@ namespace CollegeUni.Api.Controllers
         /// </summary>
         /// <param name="offset">The offset determines the number of courses to skip. Set to 0 to skip none.</param>
         /// <param name="limit">Limits the number of course items retrieved.</param>
-        /// <param name="studentID">An optional filter criteria to filter courses by student id.</param>
+        /// <param name="search">An optional filter criteria to filter courses by title.</param>
+        /// <param name="studentId">An optional filter criteria to filter courses by student id.</param>
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(ServiceResult<BrowseResponse<CourseResponse>>), 200)]
-        public async Task<IActionResult> Get(int offset, int limit, int? studentID = null)
+        public async Task<IActionResult> Get(int offset, int limit, string search, int? studentId = null)
         {
             var result = await _courseService.GetCourses(
                 new CourseBrowseRequest
                 {
-                    StudentId = studentID,
+                    StudentId = studentId,
+                    Search = search,
                     PageInfo = new PageMeta
                     {
                         Offset = offset,

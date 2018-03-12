@@ -1,10 +1,41 @@
-﻿using CollegeUni.Data.EntityFrameworkCore;
+﻿using CollegeUni.Data.Entities;
+using CollegeUni.Data.EntityFrameworkCore;
 using CollegeUni.Services.Models;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace CollegeUni.Services.Managers
 {
+
+    public class CourseValidatorA: IValidator<CourseResponse>
+    {
+        public ValidationResults Validate(CourseResponse instance)
+        {
+            var results = new ValidationResults { ModelState = new Dictionary<string, string[]>() };
+            results.ModelState.Add("Alpha", new[] { "Required." });
+            return results;
+        }
+    }
+
+    public class CourseValidatorB: IValidator<CourseResponse>
+    {
+        public ValidationResults Validate(CourseResponse instance)
+        {
+            var results = new ValidationResults { ModelState = new Dictionary<string, string[]>() };
+            results.ModelState.Add("Bravo", new[] { "Required." });
+            return results;
+        }
+    }
+    public class StudentValidatorA: IValidator<Student>
+    {
+        public ValidationResults Validate(Student instance)
+        {
+            var results = new ValidationResults { ModelState = new Dictionary<string, string[]>() };
+            results.ModelState.Add("Able", new[] { "Required." });
+            return results;
+        }
+    }
     public class CourseWorkCommand
     {
         public string CourseWork { get; set; }
@@ -13,14 +44,18 @@ namespace CollegeUni.Services.Managers
     public class UpdateCourseWorkCommandHandler: ICommandHandler<CourseWorkCommand>
     {
         readonly IUnitOfWork _unitOfWork;
-        public UpdateCourseWorkCommandHandler(IUnitOfWork unitOfWork) {
+        IValidator<CourseResponse> _validator;
+        public UpdateCourseWorkCommandHandler(IUnitOfWork unitOfWork, IValidator<CourseResponse> validator) {
             _unitOfWork = unitOfWork;
+            _validator = validator;
         }
         public void Handle(CourseWorkCommand command)
         {
             if(command?.Response != null)
             {
                 command.Response.Credits++;
+                var results = _validator.Validate(command.Response);
+                command.Response.ModelState = results.ModelState;
             }
         }
     }

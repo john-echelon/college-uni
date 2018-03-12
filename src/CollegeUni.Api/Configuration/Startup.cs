@@ -1,4 +1,5 @@
 using AutoMapper;
+using CollegeUni.Api.Utilities.Extensions;
 using CollegeUni.Data.Entities;
 using CollegeUni.Data.EntityFrameworkCore;
 using CollegeUni.Filters;
@@ -204,14 +205,27 @@ namespace CollegeUni.Api.Configuration
             _container.Register<ITokenManager, TokenManager>(Lifestyle.Transient);
             _container.Register<ICourseService, CourseService>(Lifestyle.Transient);
             _container.Register<IUnitOfWork, UnitOfWork>(Lifestyle.Scoped);
+
+            // Batch registration of open generic IGenericRepo<T>.
             _container.Register(typeof(IGenericRepo<>), typeof(GenericRepo<>), Lifestyle.Scoped);
+
+            // Batch registration of closed generic of IValidator<T> to a collection.
+            var validatorAssemblies = new[] { typeof(IValidator<>).Assembly };
+            _container.RegisterCollection(typeof(IValidator<>), validatorAssemblies);
+            // Maps the open generic IValidator<T> interface to the open generic CompositeValidator<T> implementation.
+            _container.Register(typeof(IValidator<>), typeof(CompositeValidator<>), Lifestyle.Singleton);
+
             // Go look in all assemblies and register all implementations of ICommandHandler<T> by their closed interface:
             _container.Register(typeof(ICommandHandler<>), AppDomain.CurrentDomain.GetAssemblies());
+
             // Decorate each returned ICommandHandler<T> object with a CommandHandlerDecorator<T>.
             _container.RegisterDecorator(typeof(ICommandHandler<>), typeof(ScaleCommandHandlerDecorator<>));
             _container.RegisterDecorator(typeof(ICommandHandler<>), typeof(AugmentedCommandHandlerDecorator<>));
 
+            // Batch registration of closed generic IQueryHandler<,>.
+            _container.Register(typeof(IQueryHandler<,>), new[] { typeof(IQueryHandler<,>).Assembly }) ;
 
+            _container.Register<IQueryProcessor, QueryProcessor>(Lifestyle.Singleton);
             // Cross-wire ASP.NET services (if any). For instance:
             _container.CrossWire<ILoggerFactory>(app);
             _container.CrossWire<UserManager<ApplicationUser>>(app);
@@ -230,7 +244,6 @@ namespace CollegeUni.Api.Configuration
             loggerFactory.AddNLog();
             app.AddNLogWeb();
         }
-
     }
 
     public class AuthorizationHeaderParameterOperationFilter: IOperationFilter

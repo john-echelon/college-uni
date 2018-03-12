@@ -2,6 +2,7 @@ using AutoMapper;
 using CollegeUni.Api.Utilities.Extensions;
 using CollegeUni.Data.Entities;
 using CollegeUni.Data.EntityFrameworkCore;
+using CollegeUni.Services.Managers;
 using CollegeUni.Services.Models;
 using CollegeUni.Utilities.Enumeration;
 using System.Collections.Generic;
@@ -13,28 +14,50 @@ namespace CollegeUni.Services.Services
     public class CourseService : ICourseService
     {
         readonly IUnitOfWork _unitOfWork;
-        public CourseService(IUnitOfWork unitOfWork)
+        readonly IQueryProcessor _queryProcessor;
+        readonly BrowseQueryHandlerAsync<Course, CourseResponse> _browseQueryHandler;
+        public CourseService(
+            IUnitOfWork unitOfWork,
+            IQueryProcessor queryProcessor,
+            BrowseQueryHandlerAsync<Course, CourseResponse> browseQueryHandler
+            )
         {
             _unitOfWork = unitOfWork;
+            _queryProcessor = queryProcessor;
+            _browseQueryHandler = browseQueryHandler;
         }
 
         public async Task<ServiceResult<BrowseResponse<CourseResponse>>> GetCourses(CourseBrowseRequest request)
         {
-            IQueryable<Course> query;
-            var studentId = request.StudentId.GetValueOrDefault();
-            if (request.StudentId.HasValue)
+            var querySearchCourses = new GetCoursesQuery {
+                Search = request.Search,
+                Result = _unitOfWork.CourseRepository.Get()
+            };
+            var queryCoursesByStudent = new GetCoursesByStudentQuery {
+                StudentId = request.StudentId,
+                Result = _unitOfWork.CourseRepository.Get()
+            };
+            queryCoursesByStudent.Result = _queryProcessor.Process(querySearchCourses);
+            queryCoursesByStudent.Result = _queryProcessor.Process(queryCoursesByStudent);
+            var queryMeta = new QueryMetaAsync<Course, CourseResponse>
             {
-                query = _unitOfWork.EnrollmentRepository.
-                    Get(e => e.StudentId == studentId).
-                    Select(e => e.Course);
-            }
-            else
-                query = _unitOfWork.CourseRepository.Get();
+                Limit = request.PageInfo.Limit,
+                Offset = request.PageInfo.Offset,
+                Source = queryCoursesByStudent.Result
+            };
+            //var paginatedResult = _queryProcessor.Process(new QueryMeta<Course, CourseResponse>
+            //{
+            //    Limit = request.PageInfo.Limit,
+            //    Offset = request.PageInfo.Offset,
+            //    Source = queryCoursesByStudent.Result
+            //});_
 
             var response = new BrowseResponse<CourseResponse>
             {
                 PageInfo = request.PageInfo,
-                PageResult = await query.ToPageResultAsync<Course, CourseResponse>(request.PageInfo.Offset, request.PageInfo.Limit)
+                //PageResult = await queryCoursesByStudent.Result.ToPageResultAsync<Course, CourseResponse>(request.PageInfo.Offset, request.PageInfo.Limit)
+                //PageResult = paginatedResult
+                PageResult = await _browseQueryHandler.Handle(queryMeta)
             };
             return new ServiceResult<BrowseResponse<CourseResponse>> { Data = response };
         }
