@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CollegeUni.Utilities.Enumeration;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CollegeUni.Data.EntityFrameworkCore
 {
@@ -51,9 +52,9 @@ namespace CollegeUni.Data.EntityFrameworkCore
             }
         }
 
-        public void Save()
+        public int Save()
         {
-            _context.SaveChanges();
+            return _context.SaveChanges();
         }
 
         public int Save(Action<IEnumerable<EntityEntry>> resolveConflicts, int retryCount = 3, bool userResolveConflict = false)
@@ -99,6 +100,10 @@ namespace CollegeUni.Data.EntityFrameworkCore
             this.disposed = true;
         }
 
+        public IDbContextTransaction BeginTransaction()
+        {
+            return _context.Database.BeginTransaction();
+        }
         public void Dispose()
         {
             Dispose(true);

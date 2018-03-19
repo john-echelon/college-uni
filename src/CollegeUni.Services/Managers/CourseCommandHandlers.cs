@@ -1,13 +1,14 @@
-﻿using CollegeUni.Data.Entities;
+﻿using AutoMapper;
+using CollegeUni.Data.Entities;
 using CollegeUni.Data.EntityFrameworkCore;
 using CollegeUni.Services.Models;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace CollegeUni.Services.Managers
 {
-
+    #region Remove Contrived Examples
     public class CourseValidatorA: IValidator<CourseResponse>
     {
         public ValidationResults Validate(CourseResponse instance)
@@ -17,7 +18,6 @@ namespace CollegeUni.Services.Managers
             return results;
         }
     }
-
     public class CourseValidatorB: IValidator<CourseResponse>
     {
         public ValidationResults Validate(CourseResponse instance)
@@ -41,11 +41,11 @@ namespace CollegeUni.Services.Managers
         public string CourseWork { get; set; }
         public CourseResponse Response { get; set; }
     }
-    public class UpdateCourseWorkCommandHandler: ICommandHandler<CourseWorkCommand>
+    public class CourseWorkCommandHandler: ICommandHandler<CourseWorkCommand>
     {
         readonly IUnitOfWork _unitOfWork;
         IValidator<CourseResponse> _validator;
-        public UpdateCourseWorkCommandHandler(IUnitOfWork unitOfWork, IValidator<CourseResponse> validator) {
+        public CourseWorkCommandHandler(IUnitOfWork unitOfWork, IValidator<CourseResponse> validator) {
             _unitOfWork = unitOfWork;
             _validator = validator;
         }
@@ -86,6 +86,72 @@ namespace CollegeUni.Services.Managers
             _decorated.Handle(command);
             Trace.WriteLine("End Augmenting..");
 
+        }
+    }
+    #endregion
+
+    public class CourseInsertCommand: IResult<int>
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public int Credits { get; set; }
+        public Course Entity { get; set; }
+        public int Result { get; set; }
+    }
+    public class CourseInsertCommandHandler: ICommandHandler<CourseInsertCommand, int>
+    {
+        readonly IUnitOfWork _unitOfWork;
+        IValidator<CourseInsertCommand> _validator;
+        public CourseInsertCommandHandler(IUnitOfWork unitOfWork, IValidator<CourseInsertCommand> validator) {
+            _unitOfWork = unitOfWork;
+            _validator = validator;
+        }
+        public async Task<int> Handle(CourseInsertCommand command)
+        {
+            var results = _validator.Validate(command);
+            command.Entity = Mapper.Map<CourseInsertCommand, Course>(command);
+            _unitOfWork.CourseRepository.Insert(command.Entity);
+            command.Result = 1;
+            return command.Result;
+        }
+    }
+    public class CourseDeleteCommand: IResult<int>
+    {
+        public int Id { get; set; }
+        public int Result { get; set; }
+    }
+    public class CourseDeleteCommandHandler : ICommandHandler<CourseDeleteCommand, int>
+    {
+        readonly IUnitOfWork _unitOfWork;
+        public CourseDeleteCommandHandler(IUnitOfWork unitOfWork) {
+            _unitOfWork = unitOfWork;
+        }
+        public async Task<int> Handle(CourseDeleteCommand command)
+        {
+            _unitOfWork.CourseRepository.Delete(command.Id);
+            command.Result = 1;
+            return command.Result;
+        }
+    }
+    public class CourseUpdateCommand: CourseRequest, IResult<int>
+    {
+        public Course Entity { get; set; }
+        public int Result { get; set; }
+    }
+    public class CourseUpdateCommandHandler: ICommandHandler<CourseUpdateCommand, int>
+    {
+        readonly IUnitOfWork _unitOfWork;
+        IValidator<CourseRequest> _validator;
+        public CourseUpdateCommandHandler(IUnitOfWork unitOfWork, IValidator<CourseRequest> validator) {
+            _unitOfWork = unitOfWork;
+            _validator = validator;
+        }
+        public async Task<int> Handle(CourseUpdateCommand command)
+        {
+            command.Entity = Mapper.Map<CourseRequest, Course>(command);
+            _unitOfWork.CourseRepository.Update(command.Entity);
+            command.Result = 1;
+            return command.Result;
         }
     }
 }

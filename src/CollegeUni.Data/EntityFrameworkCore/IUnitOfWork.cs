@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CollegeUni.Utilities.Enumeration;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CollegeUni.Data.EntityFrameworkCore
 {
@@ -13,11 +14,12 @@ namespace CollegeUni.Data.EntityFrameworkCore
         IGenericRepo<Student> StudentRepository { get; }
         IGenericRepo<Enrollment> EnrollmentRepository { get; }
 
-        void Save();
+        int Save();
         Task<int> SaveAsync();
         int Save(Action<IEnumerable<EntityEntry>> resolveConflicts, int retryCount = 3, bool userResolveConflict = false);
         Task<int> SaveAsync(Action<IEnumerable<EntityEntry>> resolveConflicts, int retryCount = 3, bool userResolveConflict = false);
         int SaveSingleEntry(RefreshConflict refreshMode, int retryCount = 3);
         int SaveMultipleEntries(RefreshConflict refreshMode, int retryCount = 3);
+        IDbContextTransaction BeginTransaction();
     }
 }

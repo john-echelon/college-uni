@@ -12,11 +12,20 @@ namespace CollegeUni.Services.Managers
     /**
      * Intended for use in the Command Handler Decorator pattern.
      */
+    public interface IResult<TResult>
+    {
+        TResult Result { get; set; }
+    }
     public interface ICommandHandler<TCommand>
     {
         void Handle(TCommand command);
     }
-    
+
+    public interface ICommandHandler<TCommand, TResult> where TCommand: IResult<TResult>
+    {
+        Task<TResult> Handle(TCommand command);
+    }
+
     public class ValidationResults
     {
         public Dictionary<string, string[]> ModelState { get; set; }
@@ -58,7 +67,9 @@ namespace CollegeUni.Services.Managers
         }
     }
 
-    public interface IQuery<TResult>{}
+    public interface IQuery<TResult>{
+        TResult Result { get; set; }
+    }
 
     public interface IQueryHandler<TQuery, TResult> where TQuery : IQuery<TResult>
     {
@@ -88,7 +99,7 @@ namespace CollegeUni.Services.Managers
             this.container = container;
         }
 
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         public TResult Process<TResult>(IQuery<TResult> query)
         {
             var handlerType =
@@ -99,35 +110,29 @@ namespace CollegeUni.Services.Managers
             return handler.Handle((dynamic)query);
         }
     }
-    public class QueryMeta<T, U>: IQuery<PaginatedResult<U>>
+    
+    public class QueryFlow
     {
-        public int Offset { get; set; }
-        public int Limit { get; set; }
-        public IQueryable<T> Source { get; set; }
-        public PaginatedResult<U> Result { get; set; }
-    }
- 
-    public class QueryMetaAsync<T, U>: IQuery<Task<PaginatedResult<U>>>
-    {
-        public int Offset { get; set; }
-        public int Limit { get; set; }
-        public IQueryable<T> Source { get; set; }
-        public Task<PaginatedResult<U>> Result { get; set; }
-    }
- 
-    public class BrowseQueryHandler<T,U> : IQueryHandler<QueryMeta<T,U>, PaginatedResult<U>>
-    {
-        public PaginatedResult<U> Handle(QueryMeta<T,U> query)
+        readonly IQueryProcessor _queryProcessor;
+        public QueryFlow(IQueryProcessor queryProcessor)
         {
-            return query.Source.ToPageResult<T, U>(query.Offset, query.Limit);
+            _queryProcessor = queryProcessor;
+        } 
+        public TResult Post<TResult>(IEnumerable<IQuery<TResult>> list)
+        {
+            TResult result = default(TResult);
+            if (list.Any())
+            {
+                var query = list.First();
+                result = _queryProcessor.Process(query);
+            }
+            foreach(var item in list.Skip(1))
+            {
+                item.Result = result;
+                result = _queryProcessor.Process(item);
+            }
+            return result;
         }
     }
-  
-    public class BrowseQueryHandlerAsync<T,U> : IQueryHandler<QueryMetaAsync<T,U>, Task<PaginatedResult<U>>>
-    {
-        public Task<PaginatedResult<U>> Handle(QueryMetaAsync<T,U> query)
-        {
-            return query.Source.ToPageResultAsync<T, U>(query.Offset, query.Limit);
-        }
-    }
+
 }

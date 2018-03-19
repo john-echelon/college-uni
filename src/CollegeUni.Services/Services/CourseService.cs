@@ -15,16 +15,22 @@ namespace CollegeUni.Services.Services
     {
         readonly IUnitOfWork _unitOfWork;
         readonly IQueryProcessor _queryProcessor;
-        readonly BrowseQueryHandlerAsync<Course, CourseResponse> _browseQueryHandler;
+        readonly ICommandHandler<CourseInsertCommand, int> _courseInsertHandler;
+        readonly ICommandHandler<CourseUpdateCommand, int> _courseUpdateHandler;
+        readonly ICommandHandler<CourseDeleteCommand, int> _courseDeleteHandler;
         public CourseService(
             IUnitOfWork unitOfWork,
             IQueryProcessor queryProcessor,
-            BrowseQueryHandlerAsync<Course, CourseResponse> browseQueryHandler
+            ICommandHandler<CourseInsertCommand, int> courseInsertHandler,
+            ICommandHandler<CourseUpdateCommand, int> courseUpdateHandler,
+            ICommandHandler<CourseDeleteCommand, int> courseDeleteHandler
             )
         {
             _unitOfWork = unitOfWork;
             _queryProcessor = queryProcessor;
-            _browseQueryHandler = browseQueryHandler;
+            _courseInsertHandler = courseInsertHandler;
+            _courseUpdateHandler = courseUpdateHandler;
+            _courseDeleteHandler = courseDeleteHandler;
         }
 
         public async Task<ServiceResult<BrowseResponse<CourseResponse>>> GetCourses(CourseBrowseRequest request)
@@ -35,29 +41,19 @@ namespace CollegeUni.Services.Services
             };
             var queryCoursesByStudent = new GetCoursesByStudentQuery {
                 StudentId = request.StudentId,
-                Result = _unitOfWork.CourseRepository.Get()
             };
-            queryCoursesByStudent.Result = _queryProcessor.Process(querySearchCourses);
-            queryCoursesByStudent.Result = _queryProcessor.Process(queryCoursesByStudent);
-            var queryMeta = new QueryMetaAsync<Course, CourseResponse>
+            var workItems = new List<IQuery<IQueryable<Course>>>
             {
-                Limit = request.PageInfo.Limit,
-                Offset = request.PageInfo.Offset,
-                Source = queryCoursesByStudent.Result
+                querySearchCourses,
+                queryCoursesByStudent
             };
-            //var paginatedResult = _queryProcessor.Process(new QueryMeta<Course, CourseResponse>
-            //{
-            //    Limit = request.PageInfo.Limit,
-            //    Offset = request.PageInfo.Offset,
-            //    Source = queryCoursesByStudent.Result
-            //});_
 
+            var workFlow = new QueryFlow(_queryProcessor);
+            var completedQueryResult = workFlow.Post(workItems);
             var response = new BrowseResponse<CourseResponse>
             {
                 PageInfo = request.PageInfo,
-                //PageResult = await queryCoursesByStudent.Result.ToPageResultAsync<Course, CourseResponse>(request.PageInfo.Offset, request.PageInfo.Limit)
-                //PageResult = paginatedResult
-                PageResult = await _browseQueryHandler.Handle(queryMeta)
+                PageResult = await completedQueryResult.ToPageResultAsync<Course, CourseResponse>(request.PageInfo.Offset, request.PageInfo.Limit)
             };
             return new ServiceResult<BrowseResponse<CourseResponse>> { Data = response };
         }
@@ -71,14 +67,10 @@ namespace CollegeUni.Services.Services
 
         public async Task<ServiceResult<CourseResponse>> AddCourse(CourseRequest request)
         {
-            var courseEntity = Mapper.Map<CourseRequest, Course>(request);
             var modelState = new Dictionary<string, string[]>();
-            _unitOfWork.CourseRepository.Insert(courseEntity);
-
-            // Handle Conflicts here
-            int result = await _unitOfWork.SaveAsync();
-
-            return await GetServiceResult(courseEntity, modelState, result);
+            var cmd = Mapper.Map<CourseRequest, CourseInsertCommand>(request);
+            await _courseInsertHandler.Handle(cmd);
+            return await GetServiceResult(cmd.Entity, modelState, cmd.Result);
         }
 
         private async Task<ServiceResult<CourseResponse>> GetServiceResult(Course courseEntity, Dictionary<string, string[]> modelState, int result)
@@ -96,32 +88,15 @@ namespace CollegeUni.Services.Services
 
         public async Task<ServiceResult<CourseResponse>> UpdateCourse(CourseRequest request)
         {
-            var courseEntity = Mapper.Map<CourseRequest, Course>(request);
-            var modelState = new Dictionary<string, string[]>();
+            var cmd = Mapper.Map<CourseRequest, CourseUpdateCommand>(request);
+            await _courseUpdateHandler.Handle(cmd);
 
-            _unitOfWork.CourseRepository.Update(courseEntity);
-
-            // Handle Conflicts here
-            int result;
-            if (request.ConflictStrategy == ResolveStrategy.ShowUnresolvedConflicts)
-            {
-                var resolveConflicts = ConcurrencyHelper.ResolveConflicts(courseEntity, modelState);
-                result = await _unitOfWork.SaveAsync(resolveConflicts, userResolveConflict: true);
-            }
-            else
-            {
-                RefreshConflict refreshMode = (RefreshConflict)request.ConflictStrategy;
-                if (!EnumExtensions.IsFlagDefined(refreshMode))
-                    refreshMode = RefreshConflict.StoreWins;
-                result = _unitOfWork.SaveSingleEntry(refreshMode);
-            }
-            return await GetServiceResult(courseEntity, modelState, result);
+            return await GetServiceResult(cmd.Entity, cmd.ModelState, cmd.Result);
         }
 
         public void RemoveCourse(int courseID)
         {
-            _unitOfWork.CourseRepository.Delete(courseID);
-            _unitOfWork.Save();
+            _courseDeleteHandler.Handle(new CourseDeleteCommand { Id = courseID });
         }
     }
 }

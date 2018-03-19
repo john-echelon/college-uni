@@ -6,6 +6,19 @@ using System.Threading.Tasks;
 
 namespace CollegeUni.Services.Models
 {
+    public class LoginRequest
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
+        [DataType(DataType.Password)]
+        public string Password { get; set; }
+
+        public bool RememberMe { get; set; }
+    }
+
     public class RegisterRequest
     {
         [Required]
@@ -23,5 +36,11 @@ namespace CollegeUni.Services.Models
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+    }
+
+    public class TokenResponse
+    {
+        public string Token { get; set; }
+        public DateTime Expiration { get; set; }
     }
 }

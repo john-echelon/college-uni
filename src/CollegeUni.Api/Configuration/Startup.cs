@@ -134,6 +134,9 @@ namespace CollegeUni.Api.Configuration
 
             #region AutoMapper
             Mapper.Initialize(cfg => {
+                cfg.CreateMap<CourseInsertCommand, CourseRequest>().ReverseMap();
+                cfg.CreateMap<CourseUpdateCommand, CourseRequest>().ReverseMap();
+                cfg.CreateMap<CourseInsertCommand, Course>().ReverseMap();
                 cfg.CreateMap<Course, CourseRequest>().ReverseMap();
                 cfg.CreateMap<Course, CourseResponse>().ReverseMap();
             });
@@ -144,6 +147,7 @@ namespace CollegeUni.Api.Configuration
         private void IntegrateSimpleInjector(IServiceCollection services)
         {
             _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
+            _container.Options.AllowOverridingRegistrations = true;
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -205,10 +209,10 @@ namespace CollegeUni.Api.Configuration
             _container.Register<ITokenManager, TokenManager>(Lifestyle.Transient);
             _container.Register<ICourseService, CourseService>(Lifestyle.Transient);
             _container.Register<IUnitOfWork, UnitOfWork>(Lifestyle.Scoped);
-
+            
             // Batch registration of open generic IGenericRepo<T>.
             _container.Register(typeof(IGenericRepo<>), typeof(GenericRepo<>), Lifestyle.Scoped);
-
+            
             // Batch registration of closed generic of IValidator<T> to a collection.
             var validatorAssemblies = new[] { typeof(IValidator<>).Assembly };
             _container.RegisterCollection(typeof(IValidator<>), validatorAssemblies);
@@ -217,11 +221,17 @@ namespace CollegeUni.Api.Configuration
 
             // Go look in all assemblies and register all implementations of ICommandHandler<T> by their closed interface:
             _container.Register(typeof(ICommandHandler<>), AppDomain.CurrentDomain.GetAssemblies());
+            _container.Register(typeof(ICommandHandler<,>), AppDomain.CurrentDomain.GetAssemblies());
 
             // Decorate each returned ICommandHandler<T> object with a CommandHandlerDecorator<T>.
             _container.RegisterDecorator(typeof(ICommandHandler<>), typeof(ScaleCommandHandlerDecorator<>));
             _container.RegisterDecorator(typeof(ICommandHandler<>), typeof(AugmentedCommandHandlerDecorator<>));
-
+            
+            _container.RegisterDecorator(typeof(ICommandHandler<,>), typeof(OptimisticConcurrencyCommandHandlerDecorator<,>),
+                context => typeof(IResolveable).IsAssignableFrom(context.ServiceType.GetGenericArguments()[0]));
+            _container.RegisterDecorator(typeof(ICommandHandler<,>), typeof(NonOptimisticConcurrencyCommandHandlerDecorator<,>),
+                context => !typeof(IResolveable).IsAssignableFrom(context.ServiceType.GetGenericArguments()[0]));
+            _container.RegisterDecorator(typeof(ICommandHandler<,>), typeof(TransactionCommandHandlerDecorator<,>));
             // Batch registration of closed generic IQueryHandler<,>.
             _container.Register(typeof(IQueryHandler<,>), new[] { typeof(IQueryHandler<,>).Assembly }) ;
 
