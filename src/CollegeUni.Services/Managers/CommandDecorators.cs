@@ -2,6 +2,7 @@
 using CollegeUni.Data.EntityFrameworkCore;
 using CollegeUni.Services.Models;
 using CollegeUni.Utilities.Enumeration;
+using CollegeUni.Utilities.Extensions;
 using System;
 using System.Threading.Tasks;
 
@@ -26,6 +27,10 @@ namespace CollegeUni.Services.Managers
                 {
                     await decorated.Handle(command);
                     transaction.Commit();
+                }
+                catch (ApiResponseException)
+                {
+                    throw;
                 }
                 catch (Exception ex)
                 {

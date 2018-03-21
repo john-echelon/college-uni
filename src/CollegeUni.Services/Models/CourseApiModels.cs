@@ -1,11 +1,16 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace CollegeUni.Services.Models
 {
     public class CourseRequest: ResolveableServiceRequest
     {
+        [Range(1,9000)]
         public int Id { get; set; }
+        [Required]
+        [MaxLength(255)]
         public string Title { get; set; }
+        [Range(1,8)]
         public int Credits { get; set; }
     }
 

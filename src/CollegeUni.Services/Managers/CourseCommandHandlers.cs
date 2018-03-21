@@ -2,94 +2,48 @@
 using CollegeUni.Data.Entities;
 using CollegeUni.Data.EntityFrameworkCore;
 using CollegeUni.Services.Models;
+using CollegeUni.Utilities.Extensions;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CollegeUni.Services.Managers
 {
-    #region Remove Contrived Examples
-    public class CourseValidatorA: IValidator<CourseResponse>
+    public class IntroCourseCreditsValidator: IValidator<CourseInsertCommand>
     {
-        public ValidationResults Validate(CourseResponse instance)
+        public ValidationResults Validate(CourseInsertCommand cmd)
         {
             var results = new ValidationResults { ModelState = new Dictionary<string, string[]>() };
-            results.ModelState.Add("Alpha", new[] { "Required." });
+            if (cmd.Id < 200 && cmd.Credits > 6)
+            {
+                results.ModelState.TryAdd("Credits", new[] { "100-Level courses are now allowed to be greater than 6 credits." });
+            }
             return results;
         }
     }
-    public class CourseValidatorB: IValidator<CourseResponse>
-    {
-        public ValidationResults Validate(CourseResponse instance)
-        {
-            var results = new ValidationResults { ModelState = new Dictionary<string, string[]>() };
-            results.ModelState.Add("Bravo", new[] { "Required." });
-            return results;
-        }
-    }
-    public class StudentValidatorA: IValidator<Student>
-    {
-        public ValidationResults Validate(Student instance)
-        {
-            var results = new ValidationResults { ModelState = new Dictionary<string, string[]>() };
-            results.ModelState.Add("Able", new[] { "Required." });
-            return results;
-        }
-    }
-    public class CourseWorkCommand
-    {
-        public string CourseWork { get; set; }
-        public CourseResponse Response { get; set; }
-    }
-    public class CourseWorkCommandHandler: ICommandHandler<CourseWorkCommand>
+    public class UniqueCourseValidator: IValidator<CourseInsertCommand>
     {
         readonly IUnitOfWork _unitOfWork;
-        IValidator<CourseResponse> _validator;
-        public CourseWorkCommandHandler(IUnitOfWork unitOfWork, IValidator<CourseResponse> validator) {
+        public UniqueCourseValidator(IUnitOfWork unitOfWork) {
             _unitOfWork = unitOfWork;
-            _validator = validator;
         }
-        public void Handle(CourseWorkCommand command)
+        public ValidationResults Validate(CourseInsertCommand cmd)
         {
-            if(command?.Response != null)
+            var courses = _unitOfWork.CourseRepository.Get(c => c.Title == cmd.Entity.Title || c.Id == cmd.Entity.Id).ToList();
+
+            var results = new ValidationResults { ModelState = new Dictionary<string, string[]>() };
+            if (courses.Any(c => c.Title == cmd.Entity.Title))
             {
-                command.Response.Credits++;
-                var results = _validator.Validate(command.Response);
-                command.Response.ModelState = results.ModelState;
+                results.ModelState.TryAdd("Title", new[] { "A course of that title already exists in the system." });
             }
+            if (courses.Any(c => c.Id == cmd.Entity.Id))
+            {
+                results.ModelState.TryAdd("Id", new[] { "A course of that Id already exists in the system." });
+            }
+            return results;
         }
     }
-    public class ScaleCommandHandlerDecorator<TCommand>: ICommandHandler<TCommand>
-    {
-        private readonly ICommandHandler<TCommand> _decorated;
-        public ScaleCommandHandlerDecorator(ICommandHandler<TCommand> decorated) {
-            _decorated = decorated;
-        }
-        public void Handle(TCommand command)
-        {
-            Trace.WriteLine("Start Scaling..");
-            _decorated.Handle(command);
-            Trace.WriteLine("End Scaling..");
-
-        }
-    }
-    public class AugmentedCommandHandlerDecorator<TCommand> : ICommandHandler<TCommand>
-    {
-        private readonly ICommandHandler<TCommand> _decorated;
-        public AugmentedCommandHandlerDecorator(ICommandHandler<TCommand> decorated)
-        {
-            _decorated = decorated;
-        }
-        public void Handle(TCommand command)
-        {
-            Trace.WriteLine("Start Augmenting..");
-            _decorated.Handle(command);
-            Trace.WriteLine("End Augmenting..");
-
-        }
-    }
-    #endregion
-
     public class CourseInsertCommand: IResult<int>
     {
         public int Id { get; set; }
@@ -108,8 +62,12 @@ namespace CollegeUni.Services.Managers
         }
         public async Task<int> Handle(CourseInsertCommand command)
         {
-            var results = _validator.Validate(command);
             command.Entity = Mapper.Map<CourseInsertCommand, Course>(command);
+            var results = _validator.Validate(command);
+            if (results.ModelState.Any())
+            {
+                throw new ApiResponseException("Insert Error", results.ModelState, 400);
+            }
             _unitOfWork.CourseRepository.Insert(command.Entity);
             command.Result = 1;
             return command.Result;

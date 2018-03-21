@@ -118,6 +118,7 @@ namespace CollegeUni.Api.Configuration
             });
             services.AddMvc(options => {
                 options.Filters.Add(typeof(ApiExceptionFilterAttribute)); // by type
+                options.Filters.Add(typeof(ValidateModelActionFilter)); // by type
             });
             #endregion
 
