@@ -225,9 +225,6 @@ namespace CollegeUni.Api.Configuration
             _container.Register(typeof(ICommandHandler<,>), AppDomain.CurrentDomain.GetAssemblies());
 
             // Decorate each returned ICommandHandler<T> object with a CommandHandlerDecorator<T>.
-            _container.RegisterDecorator(typeof(ICommandHandler<>), typeof(ScaleCommandHandlerDecorator<>));
-            _container.RegisterDecorator(typeof(ICommandHandler<>), typeof(AugmentedCommandHandlerDecorator<>));
-            
             _container.RegisterDecorator(typeof(ICommandHandler<,>), typeof(OptimisticConcurrencyCommandHandlerDecorator<,>),
                 context => typeof(IResolveable).IsAssignableFrom(context.ServiceType.GetGenericArguments()[0]));
             _container.RegisterDecorator(typeof(ICommandHandler<,>), typeof(NonOptimisticConcurrencyCommandHandlerDecorator<,>),

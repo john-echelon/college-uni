@@ -3,6 +3,7 @@ using CollegeUni.Data.EntityFrameworkCore;
 using CollegeUni.Services.Models;
 using CollegeUni.Utilities.Enumeration;
 using CollegeUni.Utilities.Extensions;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -10,11 +11,13 @@ namespace CollegeUni.Services.Managers
 {
     public class TransactionCommandHandlerDecorator<TCommand, TResult> : ICommandHandler<TCommand, TResult> where TCommand : IResult<TResult>
     {
+        private readonly ILogger _logger;
         readonly IUnitOfWork _unitOfWork;
         private readonly ICommandHandler<TCommand, TResult> decorated;
 
-        public TransactionCommandHandlerDecorator(ICommandHandler<TCommand, TResult> decorated, IUnitOfWork unitOfWork)
+        public TransactionCommandHandlerDecorator(ICommandHandler<TCommand, TResult> decorated, IUnitOfWork unitOfWork, ILoggerFactory logger)
         {
+            _logger = logger.CreateLogger<TransactionCommandHandlerDecorator<TCommand, TResult>>();
             _unitOfWork = unitOfWork;
             this.decorated = decorated;
         }
@@ -36,6 +39,7 @@ namespace CollegeUni.Services.Managers
                 {
                     command.Result = default(TResult);
                     transaction.Rollback();
+                    _logger.LogError(3, ex, "Transaction Rollback");
                 }
             }
             return command.Result;

@@ -12,12 +12,12 @@ namespace CollegeUni.Services.Managers
 {
     public class IntroCourseCreditsValidator: IValidator<CourseInsertCommand>
     {
-        public ValidationResults Validate(CourseInsertCommand cmd)
+        public ValidationResults Validate(CourseInsertCommand instance)
         {
             var results = new ValidationResults { ModelState = new Dictionary<string, string[]>() };
-            if (cmd.Id < 200 && cmd.Credits > 6)
+            if (instance.Id < 200 && instance.Credits > 6)
             {
-                results.ModelState.TryAdd("Credits", new[] { "100-Level courses are now allowed to be greater than 6 credits." });
+                results.ModelState.TryAdd("Credits", new[] { "100-level courses are not allowed to be greater than 6 credits." });
             }
             return results;
         }
@@ -28,16 +28,16 @@ namespace CollegeUni.Services.Managers
         public UniqueCourseValidator(IUnitOfWork unitOfWork) {
             _unitOfWork = unitOfWork;
         }
-        public ValidationResults Validate(CourseInsertCommand cmd)
+        public ValidationResults Validate(CourseInsertCommand instance)
         {
-            var courses = _unitOfWork.CourseRepository.Get(c => c.Title == cmd.Entity.Title || c.Id == cmd.Entity.Id).ToList();
+            var courses = _unitOfWork.CourseRepository.Get(c => c.Title == instance.Entity.Title || c.Id == instance.Entity.Id).ToList();
 
             var results = new ValidationResults { ModelState = new Dictionary<string, string[]>() };
-            if (courses.Any(c => c.Title == cmd.Entity.Title))
+            if (courses.Any(c => c.Title == instance.Entity.Title))
             {
                 results.ModelState.TryAdd("Title", new[] { "A course of that title already exists in the system." });
             }
-            if (courses.Any(c => c.Id == cmd.Entity.Id))
+            if (courses.Any(c => c.Id == instance.Entity.Id))
             {
                 results.ModelState.TryAdd("Id", new[] { "A course of that Id already exists in the system." });
             }
@@ -55,7 +55,7 @@ namespace CollegeUni.Services.Managers
     public class CourseInsertCommandHandler: ICommandHandler<CourseInsertCommand, int>
     {
         readonly IUnitOfWork _unitOfWork;
-        IValidator<CourseInsertCommand> _validator;
+        readonly IValidator<CourseInsertCommand> _validator;
         public CourseInsertCommandHandler(IUnitOfWork unitOfWork, IValidator<CourseInsertCommand> validator) {
             _unitOfWork = unitOfWork;
             _validator = validator;
@@ -93,7 +93,7 @@ namespace CollegeUni.Services.Managers
     }
     public class CourseUpdateCommand: CourseRequest, IResult<int>
     {
-        public Course Entity { get; set; }
+        public new Course Entity { get; set; }
         public int Result { get; set; }
     }
     public class CourseUpdateCommandHandler: ICommandHandler<CourseUpdateCommand, int>
