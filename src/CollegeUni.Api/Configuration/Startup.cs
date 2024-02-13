@@ -191,7 +191,7 @@ namespace CollegeUni.Api.Configuration
             {
                 app.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint(endpoint, "Trident API v1");
+                    c.SwaggerEndpoint(endpoint, "college-uni API v1");
                 });
             }
             ConfigureNLog(app, env, loggerFactory);
