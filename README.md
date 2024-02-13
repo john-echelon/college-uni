@@ -4,8 +4,15 @@ Demo on Identity on ASP.NET Core and EF Core
 Note this is strictly a demo of the Web API. No client side views are demonstrated here.
 
 ## Features
+* Adoption of Command Query Seperation (CQS)
+  * Command & Query Handlers
+    * src/CollegeUni.Services/Managers/CommandQuery.cs
+    * Query Processor - Build queries as a dynamic workflow
+      * src/CollegeUni.Api/Controllers/CourseController.cs Get method
+    * Command Decorators
+      * src/CollegeUni.Services/Managers/CommandDecorators.cs
 * Optimistic Concurrency
-  * See src/CollegeUni.Data/EntityFrameworkCore/DbContextExtensions.cs
+  * src/CollegeUni.Data/EntityFrameworkCore/DbContextExtensions.cs
   * src/CollegeUni.Data/EntityFrameworkCore/ConcurrencyHelper.cs
 * Repository & Unit of Work pattern - a layer of abstration between the data and business layer to help facilitate unit testing or TDD.
   * src/CollegeUni.Data/EntityFrameworkCore/GenericRepo.cs
@@ -16,7 +23,7 @@ Note this is strictly a demo of the Web API. No client side views are demonstrat
   * Validation model error response & Exception handling
   * Pagination for 'BrowseRequests'
   * Unit testing examples
-    * test/UnitTests/CollegeUni.Api.Test/AccountControllerTests.cs 
+    * test/UnitTests/CollegeUni.Api.Test/AccountControllerTests.cs
 
 ## Requirements
 Install the .NET Core 2.0 SDK (x64 installer)
