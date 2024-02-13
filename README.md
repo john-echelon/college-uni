@@ -3,11 +3,26 @@ Demo on Identity on ASP.NET Core and EF Core
 
 Note this is strictly a demo of the Web API. No client side views are demonstrated here.
 
+## Features
+* Optimistic Concurrency
+  * See src/CollegeUni.Data/EntityFrameworkCore/DbContextExtensions.cs
+  * src/CollegeUni.Data/EntityFrameworkCore/ConcurrencyHelper.cs
+* Repository & Unit of Work pattern - a layer of abstration between the data and business layer to help facilitate unit testing or TDD.
+  * src/CollegeUni.Data/EntityFrameworkCore/GenericRepo.cs
+  * src/CollegeUni.Data/EntityFrameworkCore/UnitOfWork.cs
+* Boilerplate for Service layer & API layer for handling typical CRUD requests
+  * Legacy based login & JWT Auth Support
+  * REST API doc generator via Swagger
+  * Validation model error response & Exception handling
+  * Pagination for 'BrowseRequests'
+  * Unit testing examples
+    * test/UnitTests/CollegeUni.Api.Test/AccountControllerTests.cs 
+
 ## Requirements
-If you have not done so install the .NET Core 2.0 SDK (x64 installer)
+Install the .NET Core 2.0 SDK (x64 installer)
 [https://www.microsoft.com/net/download/core]
 
-SQL Server Express is required for the database.
+SQL Server Express is used for the database.
 [https://www.microsoft.com/en-us/download/details.aspx?id=55994]
 
 ## Build and Run
