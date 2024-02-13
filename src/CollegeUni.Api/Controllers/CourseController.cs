@@ -2,9 +2,14 @@ using CollegeUni.Services.Models;
 using CollegeUni.Services.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 using System.Threading.Tasks;
-
+using AutoMapper;
+using CollegeUni.Data.Entities;
+using CollegeUni.Data.EntityFrameworkCore;
+using CollegeUni.Services.Managers;
+using System.Collections.Generic;
+using System.Linq;
+using CollegeUni.Api.Utilities.Extensions;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CollegeUni.Api.Controllers
@@ -13,11 +18,25 @@ namespace CollegeUni.Api.Controllers
     [Route("api/[controller]")]
     public class CourseController : CollegeUniBaseController
     {
-        private readonly ICourseService _courseService;
+        readonly IUnitOfWork _unitOfWork;
+        readonly IQueryProcessor _queryProcessor;
+        readonly ICommandHandler<CourseInsertCommand, int> _courseInsertHandler;
+        readonly ICommandHandler<CourseUpdateCommand, int> _courseUpdateHandler;
+        readonly ICommandHandler<CourseDeleteCommand, int> _courseDeleteHandler;
 
-        public CourseController(ICourseService courseService)
+        public CourseController(
+            IUnitOfWork unitOfWork,
+            IQueryProcessor queryProcessor,
+            ICommandHandler<CourseInsertCommand, int> courseInsertHandler,
+            ICommandHandler<CourseUpdateCommand, int> courseUpdateHandler,
+            ICommandHandler<CourseDeleteCommand, int> courseDeleteHandler
+            )
         {
-            _courseService = courseService;
+            _unitOfWork = unitOfWork;
+            _queryProcessor = queryProcessor;
+            _courseInsertHandler = courseInsertHandler;
+            _courseUpdateHandler = courseUpdateHandler;
+            _courseDeleteHandler = courseDeleteHandler;
         }
         // GET: api/values
         /// <summary>
@@ -32,18 +51,37 @@ namespace CollegeUni.Api.Controllers
         [ProducesResponseType(typeof(ServiceResult<BrowseResponse<CourseResponse>>), 200)]
         public async Task<IActionResult> Get(int offset, int limit, string search, int? studentId = null)
         {
-            var result = await _courseService.GetCourses(
-                new CourseBrowseRequest
+            var request = new CourseBrowseRequest
+            {
+                StudentId = studentId,
+                Search = search,
+                PageInfo = new PageMeta
                 {
-                    StudentId = studentId,
-                    Search = search,
-                    PageInfo = new PageMeta
-                    {
-                        Offset = offset,
-                        Limit = limit
-                    }
-                });
-            return Ok(result);
+                    Offset = offset,
+                    Limit = limit
+                }
+            };
+            var querySearchCourses = new GetCoursesQuery {
+                Search = request.Search,
+                Result = _unitOfWork.CourseRepository.Get()
+            };
+            var queryCoursesByStudent = new GetCoursesByStudentQuery {
+                StudentId = request.StudentId,
+            };
+            var workItems = new List<IQuery<IQueryable<Course>>>
+            {
+                querySearchCourses,
+                queryCoursesByStudent
+            };
+
+            var workFlow = new QueryFlow(_queryProcessor);
+            var completedQueryResult = workFlow.Post(workItems);
+            var response = new BrowseResponse<CourseResponse>
+            {
+                PageInfo = request.PageInfo,
+                PageResult = await completedQueryResult.ToPageResultAsync<Course, CourseResponse>(request.PageInfo.Offset, request.PageInfo.Limit)
+            };
+            return Ok(new ServiceResult<BrowseResponse<CourseResponse>> { Data = response });
         }
 
         // GET api/values/5
@@ -56,7 +94,7 @@ namespace CollegeUni.Api.Controllers
         [ProducesResponseType(typeof(ServiceResult<CourseResponse>), 200)]
         public async Task<IActionResult> GetAsync(int id)
         {
-            var result = await _courseService.GetCourse(id);
+            var result = await GetCourse(id);
             return Ok(result);
         }
 
@@ -67,9 +105,12 @@ namespace CollegeUni.Api.Controllers
         /// <param name="value"></param>
         [HttpPost]
         [ProducesResponseType(typeof(ServiceResult<CourseResponse>), 200)]
-        public async Task<IActionResult> Post([FromBody]CourseRequest value)
+        public async Task<IActionResult> Post([FromBody]CourseRequest request)
         {
-            var result = await _courseService.AddCourse(value);
+            var modelState = new Dictionary<string, string[]>();
+            var cmd = Mapper.Map<CourseRequest, CourseInsertCommand>(request);
+            await _courseInsertHandler.Handle(cmd);
+            var result = await GetServiceResult(cmd.Entity, modelState, cmd.Result);
             return Ok(result);
         }
 
@@ -80,10 +121,15 @@ namespace CollegeUni.Api.Controllers
         /// <param name="value"></param>
         [HttpPut]
         [ProducesResponseType(typeof(ServiceResult<CourseResponse>), 200)]
-        public async Task<IActionResult> Put([FromBody]CourseRequest value)
+        public async Task<IActionResult> Put([FromBody]CourseRequest request)
         {
-            var result = await _courseService.UpdateCourse(value);
-            if (!result.HasErrors)
+            request.ConflictStrategy = CollegeUni.Utilities.Enumeration.ResolveStrategy.ShowUnresolvedConflicts;
+            var cmd = Mapper.Map<CourseRequest, CourseUpdateCommand>(request);
+
+            var cmdResult = await _courseUpdateHandler.Handle(cmd);
+
+            var result = await GetServiceResult(cmd.Entity, cmd.ModelState, cmd.Result);
+            if (result.HasErrors)
             {
                 return BadRequest(result);
             }
@@ -99,7 +145,25 @@ namespace CollegeUni.Api.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            _courseService.RemoveCourse(id);
+            _courseDeleteHandler.Handle(new CourseDeleteCommand { Id = id });
+        }
+        public async Task<ServiceResult<CourseResponse>> GetCourse(int courseId)
+        {
+            var response = Mapper.Map<Course, CourseResponse>(await _unitOfWork.CourseRepository.GetByIdAsync(courseId));
+            var serviceResult = new ServiceResult<CourseResponse> { Data = response };
+            return serviceResult;
+        }
+        private async Task<ServiceResult<CourseResponse>> GetServiceResult(Course courseEntity, Dictionary<string, string[]> modelState, int result)
+        {
+            if (result > 0)
+            {
+                return await GetCourse(courseEntity.Id);
+            }
+            else
+            {
+                CourseResponse response = Mapper.Map<Course, CourseResponse>(courseEntity);
+                return new ServiceResult<CourseResponse> { Message = "There were errors saving Course.", ModelState = modelState, Data = response };
+            }
         }
     }
 }

@@ -24,6 +24,7 @@ namespace CollegeUni.Services.Managers
 
         public async Task<TResult> Handle(TCommand command)
         {
+            // TODO: Combined use of Async Transactions and SaveAsync currently not supported.
             using (var transaction = _unitOfWork.BeginTransaction())
             {
                 try
@@ -38,7 +39,7 @@ namespace CollegeUni.Services.Managers
                 catch (Exception ex)
                 {
                     command.Result = default(TResult);
-                    transaction.Rollback();
+                    // transaction.RollBack() should not be called when scope is wrapped in a using statement
                     _logger.LogError(3, ex, "Transaction Rollback");
                 }
             }
@@ -59,7 +60,8 @@ namespace CollegeUni.Services.Managers
         public async Task<TResult> Handle(TCommand command)
         {
             await decorated.Handle(command);
-            await _unitOfWork.SaveAsync();
+            //await _unitOfWork.SaveAsync();
+            _unitOfWork.Save();
             return command.Result;
         }
     }
@@ -77,11 +79,12 @@ namespace CollegeUni.Services.Managers
 
         public async Task<TResult> Handle(TCommand command)
         {
+            await decorated.Handle(command);
             if (command.ConflictStrategy == ResolveStrategy.ShowUnresolvedConflicts)
             {
-                await decorated.Handle(command);
                 var resolveConflicts = ConcurrencyHelper.ResolveConflicts(command.Entity, command.ModelState);
-                await _unitOfWork.SaveAsync(resolveConflicts, userResolveConflict: true);
+                //await _unitOfWork.SaveAsync(resolveConflicts, userResolveConflict: true);
+                _unitOfWork.Save(resolveConflicts, userResolveConflict: true);
             }
             else
             {

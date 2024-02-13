@@ -22,6 +22,7 @@ namespace CollegeUni.Api.Controllers
         [HttpPost("token")]
         public async Task<IActionResult> Token([FromBody] LoginRequest model)
         {
+            await Task.Delay(3000).ConfigureAwait(continueOnCapturedContext: false);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

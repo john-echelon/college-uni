@@ -99,7 +99,7 @@ namespace CollegeUni.Services.Managers
     public class CourseUpdateCommandHandler: ICommandHandler<CourseUpdateCommand, int>
     {
         readonly IUnitOfWork _unitOfWork;
-        IValidator<CourseRequest> _validator;
+        readonly IValidator<CourseRequest> _validator;
         public CourseUpdateCommandHandler(IUnitOfWork unitOfWork, IValidator<CourseRequest> validator) {
             _unitOfWork = unitOfWork;
             _validator = validator;

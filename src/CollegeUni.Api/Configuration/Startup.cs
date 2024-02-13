@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,7 +41,7 @@ namespace CollegeUni.Api.Configuration
 {
     public class Startup
     {
-        private Container _container = new Container();
+        readonly Container _container = new Container();
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -56,8 +57,11 @@ namespace CollegeUni.Api.Configuration
             services.AddCors();
 
             // EF Section
+            // The ServiceLifetime.Scoped will insure that the context will have a scoped lifetime instead of a transient life time.
             services.AddDbContext<AuthContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped);
+            // More things
+            IntegrateSimpleInjector(services);
 
             // Identity Section
             services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -74,7 +78,7 @@ namespace CollegeUni.Api.Configuration
                 options.Password.RequiredUniqueChars = 6;
 
                 // Lockout settings
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(130);
                 options.Lockout.MaxFailedAccessAttempts = 10;
                 options.Lockout.AllowedForNewUsers = true;
 
@@ -154,7 +158,8 @@ namespace CollegeUni.Api.Configuration
 
             services.AddSingleton<IControllerActivator>(
                 new SimpleInjectorControllerActivator(_container));
-
+            services.AddSingleton<IViewComponentActivator>(
+                new SimpleInjectorViewComponentActivator(_container));
             services.EnableSimpleInjectorCrossWiring(_container);
             services.UseSimpleInjectorAspNetRequestScoping(_container);
         }
@@ -193,19 +198,26 @@ namespace CollegeUni.Api.Configuration
             app.UseExceptionHandler(AppMiddlewareExceptionFilter.JsonHandler());
 
             InitializeContainer(app);
-
-
             _container.Verify();
             app.UseMvc();
         }
- 
+
         private void InitializeContainer(IApplicationBuilder app)
         {
+            /*
+            AsyncScopedLifestyle will scope the container to the async call and all subsequent/ child Tasks will run using this container.
+            This means that when you use a controller with async Task<IActionResult> the container will be scoped to this call.
+            If you make a call to 2 different controllers, a new container will be created for each.
+            */
+            _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
+
             // Add application presentation components:
             _container.RegisterMvcControllers(app);
             _container.RegisterMvcViewComponents(app);
 
             // Add application services. For instance:
+            //_container.Register(app.ApplicationServices.GetService<AuthContext>, Lifestyle.Scoped);
+            //_container.Register<AuthContext>(() => app.GetRequiredRequestService<AuthContext>(), Lifestyle.Scoped);
             _container.Register<IAuthService, AuthService>(Lifestyle.Transient);
             _container.Register<ITokenManager, TokenManager>(Lifestyle.Transient);
             _container.Register<ICourseService, CourseService>(Lifestyle.Transient);

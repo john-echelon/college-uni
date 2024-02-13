@@ -89,25 +89,29 @@ namespace CollegeUni.Data.EntityFrameworkCore
         {
             return _context.SaveChangesAsync(resolveConflicts, retryCount, userResolveConflict);
         }
-        private bool disposed = false;
+        //private bool disposed = false;
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed && disposing)
-            {
-                _context.Dispose();
-            }
-            this.disposed = true;
-        }
+        //protected virtual void Dispose(bool disposing)
+        //{
+        //    if (!this.disposed && disposing)
+        //    {
+        //        _context.Dispose();
+        //    }
+        //    this.disposed = true;
+        //}
 
         public IDbContextTransaction BeginTransaction()
         {
             return _context.Database.BeginTransaction();
         }
-        public void Dispose()
+        public Task<IDbContextTransaction> BeginTransactionAsync()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            return _context.Database.BeginTransactionAsync();
         }
+        //public void Dispose()
+        //{
+        //    Dispose(true);
+        //    GC.SuppressFinalize(this);
+        //}
     }
 }

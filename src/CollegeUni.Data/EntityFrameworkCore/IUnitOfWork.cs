@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CollegeUni.Data.EntityFrameworkCore
 {
-    public interface IUnitOfWork: IDisposable
+    public interface IUnitOfWork //: IDisposable
     {
         IGenericRepo<Course> CourseRepository { get; }
         IGenericRepo<Student> StudentRepository { get; }
@@ -21,5 +21,6 @@ namespace CollegeUni.Data.EntityFrameworkCore
         int SaveSingleEntry(RefreshConflict refreshMode, int retryCount = 3);
         int SaveMultipleEntries(RefreshConflict refreshMode, int retryCount = 3);
         IDbContextTransaction BeginTransaction();
+        Task<IDbContextTransaction> BeginTransactionAsync();
     }
 }

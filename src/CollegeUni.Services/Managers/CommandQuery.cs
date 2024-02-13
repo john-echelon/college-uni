@@ -16,7 +16,7 @@ namespace CollegeUni.Services.Managers
     {
         TResult Result { get; set; }
     }
-    public interface ICommandHandler<TCommand>
+    public interface ICommandHandler<in TCommand>
     {
         void Handle(TCommand command);
     }
@@ -34,7 +34,7 @@ namespace CollegeUni.Services.Managers
     /**
      * Intended for use in the batch registration of validators.
      */
-    public interface IValidator<T>
+    public interface IValidator<in T>
     {
         ValidationResults Validate(T instance);
     }
@@ -71,7 +71,7 @@ namespace CollegeUni.Services.Managers
         TResult Result { get; set; }
     }
 
-    public interface IQueryHandler<TQuery, TResult> where TQuery : IQuery<TResult>
+    public interface IQueryHandler<TQuery, out TResult> where TQuery : IQuery<TResult>
     {
         TResult Handle(TQuery query);
     }
