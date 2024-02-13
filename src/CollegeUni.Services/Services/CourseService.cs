@@ -2,6 +2,7 @@ using AutoMapper;
 using CollegeUni.Api.Utilities.Extensions;
 using CollegeUni.Data.Entities;
 using CollegeUni.Data.EntityFrameworkCore;
+using CollegeUni.Services.Managers;
 using CollegeUni.Services.Models;
 using CollegeUni.Utilities.Enumeration;
 using System.Collections.Generic;
@@ -13,28 +14,46 @@ namespace CollegeUni.Services.Services
     public class CourseService : ICourseService
     {
         readonly IUnitOfWork _unitOfWork;
-        public CourseService(IUnitOfWork unitOfWork)
+        readonly IQueryProcessor _queryProcessor;
+        readonly ICommandHandler<CourseInsertCommand, int> _courseInsertHandler;
+        readonly ICommandHandler<CourseUpdateCommand, int> _courseUpdateHandler;
+        readonly ICommandHandler<CourseDeleteCommand, int> _courseDeleteHandler;
+        public CourseService(
+            IUnitOfWork unitOfWork,
+            IQueryProcessor queryProcessor,
+            ICommandHandler<CourseInsertCommand, int> courseInsertHandler,
+            ICommandHandler<CourseUpdateCommand, int> courseUpdateHandler,
+            ICommandHandler<CourseDeleteCommand, int> courseDeleteHandler
+            )
         {
             _unitOfWork = unitOfWork;
+            _queryProcessor = queryProcessor;
+            _courseInsertHandler = courseInsertHandler;
+            _courseUpdateHandler = courseUpdateHandler;
+            _courseDeleteHandler = courseDeleteHandler;
         }
 
         public async Task<ServiceResult<BrowseResponse<CourseResponse>>> GetCourses(CourseBrowseRequest request)
         {
-            IQueryable<Course> query;
-            var studentId = request.StudentId.GetValueOrDefault();
-            if (request.StudentId.HasValue)
+            var querySearchCourses = new GetCoursesQuery {
+                Search = request.Search,
+                Result = _unitOfWork.CourseRepository.Get()
+            };
+            var queryCoursesByStudent = new GetCoursesByStudentQuery {
+                StudentId = request.StudentId,
+            };
+            var workItems = new List<IQuery<IQueryable<Course>>>
             {
-                query = _unitOfWork.EnrollmentRepository.
-                    Get(e => e.StudentId == studentId).
-                    Select(e => e.Course);
-            }
-            else
-                query = _unitOfWork.CourseRepository.Get();
+                querySearchCourses,
+                queryCoursesByStudent
+            };
 
+            var workFlow = new QueryFlow(_queryProcessor);
+            var completedQueryResult = workFlow.Post(workItems);
             var response = new BrowseResponse<CourseResponse>
             {
                 PageInfo = request.PageInfo,
-                PageResult = await query.ToPageResultAsync<Course, CourseResponse>(request.PageInfo.Offset, request.PageInfo.Limit)
+                PageResult = await completedQueryResult.ToPageResultAsync<Course, CourseResponse>(request.PageInfo.Offset, request.PageInfo.Limit)
             };
             return new ServiceResult<BrowseResponse<CourseResponse>> { Data = response };
         }
@@ -48,14 +67,10 @@ namespace CollegeUni.Services.Services
 
         public async Task<ServiceResult<CourseResponse>> AddCourse(CourseRequest request)
         {
-            var courseEntity = Mapper.Map<CourseRequest, Course>(request);
             var modelState = new Dictionary<string, string[]>();
-            _unitOfWork.CourseRepository.Insert(courseEntity);
-
-            // Handle Conflicts here
-            int result = await _unitOfWork.SaveAsync();
-
-            return await GetServiceResult(courseEntity, modelState, result);
+            var cmd = Mapper.Map<CourseRequest, CourseInsertCommand>(request);
+            await _courseInsertHandler.Handle(cmd);
+            return await GetServiceResult(cmd.Entity, modelState, cmd.Result);
         }
 
         private async Task<ServiceResult<CourseResponse>> GetServiceResult(Course courseEntity, Dictionary<string, string[]> modelState, int result)
@@ -73,32 +88,15 @@ namespace CollegeUni.Services.Services
 
         public async Task<ServiceResult<CourseResponse>> UpdateCourse(CourseRequest request)
         {
-            var courseEntity = Mapper.Map<CourseRequest, Course>(request);
-            var modelState = new Dictionary<string, string[]>();
+            var cmd = Mapper.Map<CourseRequest, CourseUpdateCommand>(request);
+            await _courseUpdateHandler.Handle(cmd);
 
-            _unitOfWork.CourseRepository.Update(courseEntity);
-
-            // Handle Conflicts here
-            int result;
-            if (request.ConflictStrategy == ResolveStrategy.ShowUnresolvedConflicts)
-            {
-                var resolveConflicts = ConcurrencyHelper.ResolveConflicts(courseEntity, modelState);
-                result = await _unitOfWork.SaveAsync(resolveConflicts, userResolveConflict: true);
-            }
-            else
-            {
-                RefreshConflict refreshMode = (RefreshConflict)request.ConflictStrategy;
-                if (!EnumExtensions.IsFlagDefined(refreshMode))
-                    refreshMode = RefreshConflict.StoreWins;
-                result = _unitOfWork.SaveSingleEntry(refreshMode);
-            }
-            return await GetServiceResult(courseEntity, modelState, result);
+            return await GetServiceResult(cmd.Entity, cmd.ModelState, cmd.Result);
         }
 
         public void RemoveCourse(int courseID)
         {
-            _unitOfWork.CourseRepository.Delete(courseID);
-            _unitOfWork.Save();
+            _courseDeleteHandler.Handle(new CourseDeleteCommand { Id = courseID });
         }
     }
 }

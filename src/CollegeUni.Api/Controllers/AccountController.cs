@@ -13,15 +13,16 @@ namespace CollegeUni.Api.Controllers
         private readonly ILogger _logger;
         private readonly IAuthService _authService;
 
-        public AccountController(IAuthService authService, ILogger<AccountController> logger)
+        public AccountController(IAuthService authService, ILoggerFactory logger)
         {
-            _logger = logger;
+            _logger = logger.CreateLogger<AccountController>();
             _authService = authService;
         }
 
         [HttpPost("token")]
         public async Task<IActionResult> Token([FromBody] LoginRequest model)
         {
+            await Task.Delay(3000).ConfigureAwait(continueOnCapturedContext: false);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

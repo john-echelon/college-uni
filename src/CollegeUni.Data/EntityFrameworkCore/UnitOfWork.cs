@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CollegeUni.Utilities.Enumeration;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CollegeUni.Data.EntityFrameworkCore
 {
@@ -51,9 +52,9 @@ namespace CollegeUni.Data.EntityFrameworkCore
             }
         }
 
-        public void Save()
+        public int Save()
         {
-            _context.SaveChanges();
+            return _context.SaveChanges();
         }
 
         public int Save(Action<IEnumerable<EntityEntry>> resolveConflicts, int retryCount = 3, bool userResolveConflict = false)
@@ -88,21 +89,29 @@ namespace CollegeUni.Data.EntityFrameworkCore
         {
             return _context.SaveChangesAsync(resolveConflicts, retryCount, userResolveConflict);
         }
-        private bool disposed = false;
+        //private bool disposed = false;
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed && disposing)
-            {
-                _context.Dispose();
-            }
-            this.disposed = true;
-        }
+        //protected virtual void Dispose(bool disposing)
+        //{
+        //    if (!this.disposed && disposing)
+        //    {
+        //        _context.Dispose();
+        //    }
+        //    this.disposed = true;
+        //}
 
-        public void Dispose()
+        public IDbContextTransaction BeginTransaction()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            return _context.Database.BeginTransaction();
         }
+        public Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return _context.Database.BeginTransactionAsync();
+        }
+        //public void Dispose()
+        //{
+        //    Dispose(true);
+        //    GC.SuppressFinalize(this);
+        //}
     }
 }

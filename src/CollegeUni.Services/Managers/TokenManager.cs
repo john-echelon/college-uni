@@ -31,7 +31,7 @@ namespace CollegeUni.Services.Managers
                 issuer: domain,
                 audience: domain,
                 claims: GetTokenClaims(user).Union(userClaims),
-                expires: DateTime.UtcNow.AddMinutes(10),
+                expires: DateTime.UtcNow.AddMinutes(30),
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(apiIdentifier)), SecurityAlgorithms.HmacSha256)
             );
         }

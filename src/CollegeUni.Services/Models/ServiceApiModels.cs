@@ -1,9 +1,20 @@
+﻿using CollegeUni.Data.Entities;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace CollegeUni.Services.Models
 {
+    public class ResolveableServiceRequest : IServiceRequest, IResolveable
+    {
+        public int? Id { get; set; }
+        public byte[] RowVersion { get; set; }
+        public Utilities.Enumeration.ResolveStrategy ConflictStrategy { get; set; } = Utilities.Enumeration.ResolveStrategy.StoreWins;
+        public Dictionary<string, string[]> ModelState { get; set; } = new Dictionary<string, string[]>();
+        [JsonIgnore]
+        public IEntity Entity { get; set; }
+    }
+
     public class ServiceResult
     {
         public string Message { get; set; }
@@ -25,6 +36,7 @@ namespace CollegeUni.Services.Models
             return modelState;
         }
     }
+
     public class ServiceResult<T> : ServiceResult
     {
         public T Data { get; set; }
